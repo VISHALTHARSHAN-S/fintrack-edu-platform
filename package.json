@@ -1,0 +1,16 @@
+{
+  "name": "fintrack-edu",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FinTrack Edu full-stack development workspace",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n CLIENT,SERVER -c cyan,green \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "build": "npm run build --prefix client",
+    "install-all": "npm install && npm install --prefix client && npm install --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
