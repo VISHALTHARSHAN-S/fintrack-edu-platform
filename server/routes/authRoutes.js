@@ -7,6 +7,9 @@ import {
   forgotPassword,
   resetPassword,
   getMe,
+  googleLogin,
+  googleCallback,
+  completeGoogleRegistration,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -19,5 +22,8 @@ router.post('/login', loginUser);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/me', protect, getMe);
+router.get('/google', googleLogin);
+router.get('/google/callback', googleCallback);
+router.post('/google/register', completeGoogleRegistration);
 
 export default router;

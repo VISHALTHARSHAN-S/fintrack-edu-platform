@@ -5,6 +5,280 @@ import { RecruiterProfile } from '../models/RecruiterProfile.js';
 import { generateToken } from '../utils/generateToken.js';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService.js';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+
+const GOOGLE_STATE_COOKIE = 'fintrack_google_oauth_state';
+const VALID_ROLES = ['student', 'mentor', 'recruiter'];
+const getJwtSecret = () => process.env.JWT_SECRET || 'fintrack_edu_jwt_secret_key_2026_super_secure_token';
+
+const getGoogleClient = () => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_CALLBACK_URL) {
+    return null;
+  }
+
+  return new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_CALLBACK_URL,
+  );
+};
+
+const getCookieValue = (cookieHeader, name) => {
+  const cookie = cookieHeader
+    ?.split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`));
+
+  return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null;
+};
+
+const getClientUrl = () => process.env.CLIENT_URL || 'http://localhost:5173';
+
+const getAuthErrorPath = (flow) => (flow === 'registration' ? '/register' : '/login');
+
+const statesMatch = (receivedState, expectedState) => {
+  if (typeof receivedState !== 'string' || typeof expectedState !== 'string' || receivedState.length !== expectedState.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(Buffer.from(receivedState), Buffer.from(expectedState));
+};
+
+const redirectToAuthError = (res, message, flow = 'login') => {
+  const authUrl = new URL(getAuthErrorPath(flow), getClientUrl());
+  authUrl.searchParams.set('oauthError', message);
+  return res.redirect(authUrl.toString());
+};
+
+const readOAuthState = (cookieHeader) => {
+  const encodedState = getCookieValue(cookieHeader, GOOGLE_STATE_COOKIE);
+  if (!encodedState) return null;
+
+  try {
+    return JSON.parse(encodedState);
+  } catch {
+    return null;
+  }
+};
+
+const getGoogleUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  isVerified: user.isVerified,
+});
+
+/**
+ * @desc    Start Google OAuth authorization
+ * @route   GET /api/auth/google
+ * @access  Public
+ */
+export const googleLogin = (req, res) => {
+  const client = getGoogleClient();
+  const requestedRole = req.query.role;
+  const flow = requestedRole === undefined ? 'login' : 'registration';
+
+  if (flow === 'registration' && !VALID_ROLES.includes(requestedRole)) {
+    return redirectToAuthError(res, 'Please select a valid account role before continuing with Google', 'registration');
+  }
+
+  if (!client) {
+    return redirectToAuthError(res, 'Google login is not configured yet', flow);
+  }
+
+  const state = crypto.randomBytes(32).toString('hex');
+  const statePayload = JSON.stringify({ state, flow, role: requestedRole || null });
+  res.cookie(GOOGLE_STATE_COOKIE, statePayload, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 10 * 60 * 1000,
+    path: '/api/auth/google',
+  });
+
+  const authorizationUrl = client.generateAuthUrl({
+    access_type: 'online',
+    scope: ['openid', 'email', 'profile'],
+    state,
+    prompt: 'select_account',
+  });
+
+  return res.redirect(authorizationUrl);
+};
+
+/**
+ * @desc    Complete Google OAuth and issue the existing FinTrack JWT
+ * @route   GET /api/auth/google/callback
+ * @access  Public
+ */
+export const googleCallback = async (req, res) => {
+  const client = getGoogleClient();
+  const savedState = readOAuthState(req.headers.cookie);
+  const flow = savedState?.flow === 'registration' ? 'registration' : 'login';
+
+  res.clearCookie(GOOGLE_STATE_COOKIE, { path: '/api/auth/google' });
+
+  if (req.query.error) {
+    return redirectToAuthError(res, 'Google login was cancelled', flow);
+  }
+
+  if (!client || !req.query.code || !savedState || !statesMatch(req.query.state, savedState.state)) {
+    return redirectToAuthError(res, 'The Google login response could not be verified', flow);
+  }
+
+  try {
+    if (!req.isDbConnected) {
+      return redirectToAuthError(res, 'Google login requires a connected database', flow);
+    }
+
+    const { tokens } = await client.getToken(req.query.code);
+    if (!tokens.id_token) {
+      return redirectToAuthError(res, 'Google did not return a valid identity', flow);
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload?.sub || !payload.email || payload.email_verified !== true) {
+      return redirectToAuthError(res, 'A verified Google email address is required', flow);
+    }
+
+    const normalizedEmail = payload.email.toLowerCase();
+    let user = await User.findOne({ googleId: payload.sub });
+
+    if (flow === 'registration') {
+      if (!VALID_ROLES.includes(savedState.role)) {
+        return redirectToAuthError(res, 'The selected account role is invalid', 'registration');
+      }
+
+      const existingUser = user || await User.findOne({ email: normalizedEmail });
+      if (existingUser) {
+        if (existingUser.role !== savedState.role) {
+          return redirectToAuthError(
+            res,
+            `This email is already registered as a ${existingUser.role}. Please sign in using your existing account.`,
+            'registration',
+          );
+        }
+
+        if (existingUser.googleId === payload.sub) {
+          const token = generateToken(existingUser._id, existingUser.role);
+          const callbackUrl = new URL('/oauth/callback', getClientUrl());
+          callbackUrl.hash = `token=${encodeURIComponent(token)}`;
+          return res.redirect(callbackUrl.toString());
+        }
+
+        return redirectToAuthError(res, 'This email is already registered. Please sign in using your existing account.', 'registration');
+      }
+
+      const registrationTicket = jwt.sign(
+        {
+          type: 'google_registration',
+          googleId: payload.sub,
+          name: payload.name || normalizedEmail.split('@')[0],
+          email: normalizedEmail,
+          avatar: payload.picture || '',
+          role: savedState.role,
+        },
+        getJwtSecret(),
+        { expiresIn: '10m' },
+      );
+      const callbackUrl = new URL('/register', getClientUrl());
+      callbackUrl.hash = `registration_token=${encodeURIComponent(registrationTicket)}`;
+      return res.redirect(callbackUrl.toString());
+    }
+
+    if (!user) {
+      user = await User.findOne({ email: normalizedEmail });
+
+      if (user) {
+        if (user.googleId && user.googleId !== payload.sub) {
+          return redirectToAuthError(res, 'This email is linked to another Google account', 'login');
+        }
+
+        user.googleId = payload.sub;
+        user.authProvider = user.passwordHash ? 'local_google' : 'google';
+        user.isVerified = true;
+        user.avatar = user.avatar || payload.picture || '';
+        await user.save();
+      } else {
+        return redirectToAuthError(res, 'No FinTrack account exists for this Google email. Please register first.', 'login');
+      }
+    }
+
+    const token = generateToken(user._id, user.role);
+    const callbackUrl = new URL('/oauth/callback', getClientUrl());
+    callbackUrl.hash = `token=${encodeURIComponent(token)}`;
+    return res.redirect(callbackUrl.toString());
+  } catch (error) {
+    console.error('[Google OAuth Error]', error.message);
+    return redirectToAuthError(res, 'Google login could not be completed. Please try again.', flow);
+  }
+};
+
+/**
+ * @desc    Create a complete user from a verified Google registration ticket
+ * @route   POST /api/auth/google/register
+ * @access  Public
+ */
+export const completeGoogleRegistration = async (req, res) => {
+  try {
+    if (!req.isDbConnected) {
+      return res.status(503).json({ success: false, message: 'Google registration requires a connected database' });
+    }
+
+    const { registrationToken, role, phone, institution, degree, yearOfStudy, designation, company, expertise, companyName, industry, companySize } = req.body;
+    const ticket = jwt.verify(registrationToken || '', getJwtSecret());
+
+    if (ticket.type !== 'google_registration' || ticket.role !== role || !VALID_ROLES.includes(role)) {
+      return res.status(400).json({ success: false, message: 'The Google registration session is invalid' });
+    }
+
+    const existingUser = await User.findOne({ $or: [{ email: ticket.email }, { googleId: ticket.googleId }] });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'This Google account is already registered. Please sign in instead.' });
+    }
+
+    const user = await User.create({
+      name: ticket.name,
+      email: ticket.email,
+      phone: phone || '',
+      googleId: ticket.googleId,
+      authProvider: 'google',
+      role: ticket.role,
+      isVerified: true,
+      avatar: ticket.avatar || '',
+    });
+
+    try {
+      if (role === 'student') {
+        await StudentProfile.create({ userId: user._id, institution: institution || '', degree: degree || '', yearOfStudy: yearOfStudy || '' });
+      } else if (role === 'mentor') {
+        await MentorProfile.create({ userId: user._id, designation: designation || '', company: company || '', expertise: expertise || '' });
+      } else {
+        await RecruiterProfile.create({ userId: user._id, companyName: companyName || '', industry: industry || '', companySize: companySize || '' });
+      }
+    } catch (profileError) {
+      await User.deleteOne({ _id: user._id });
+      throw profileError;
+    }
+
+    const token = generateToken(user._id, user.role);
+    return res.status(201).json({ success: true, message: 'Google registration successful', token, user: getGoogleUser(user) });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ success: false, message: 'Your Google registration session expired. Please try again.' });
+    }
+    console.error('[Google Registration Error]', error.message);
+    return res.status(500).json({ success: false, message: 'Google registration could not be completed. Please try again.' });
+  }
+};
 
 // Generate random 6-digit OTP
 const generateOTP = () => {
@@ -210,7 +484,7 @@ export const loginUser = async (req, res) => {
     if (req.isDbConnected) {
       const user = await User.findOne({ email: email.toLowerCase() });
 
-      if (!user) {
+      if (!user || !user.passwordHash) {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
 

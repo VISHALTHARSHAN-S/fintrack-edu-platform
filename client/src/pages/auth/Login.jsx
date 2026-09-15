@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { login, clearError } from '../../features/auth/authSlice';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Toast from '../../components/common/Toast';
 import { Sparkles, Mail, Lock, ShieldCheck, ArrowRight, UserCheck } from 'lucide-react';
 
+const GoogleIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="#4285F4" d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z" />
+    <path fill="#34A853" d="M12 21.6c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.7-1.72-5.47-4.03H3.28v2.53A9.74 9.74 0 0 0 12 21.6Z" />
+    <path fill="#FBBC05" d="M6.53 13.68A5.85 5.85 0 0 1 6.22 12c0-.58.1-1.15.31-1.68V7.79H3.28A9.73 9.73 0 0 0 2.25 12c0 1.57.38 3.05 1.03 4.21l3.25-2.53Z" />
+    <path fill="#EA4335" d="M12 6.29c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.38 14.63 2.4 12 2.4a9.74 9.74 0 0 0-8.72 5.39l3.25 2.53C7.3 8.01 9.46 6.29 12 6.29Z" />
+  </svg>
+);
+
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isLoading, error } = useSelector((state) => state.auth);
+  const oauthError = searchParams.get('oauthError');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -99,8 +110,8 @@ const Login = () => {
               <p className="text-sm text-slate-500 mt-1">Please enter your credentials to access your account</p>
             </div>
 
-            {error && (
-              <Toast type="error" message={error} onClose={() => dispatch(clearError())} duration={5000} />
+            {(error || oauthError) && (
+              <Toast type="error" message={error || oauthError} onClose={() => dispatch(clearError())} duration={5000} />
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -153,6 +164,24 @@ const Login = () => {
                 Sign In
               </Button>
             </form>
+
+            <div className="relative flex items-center gap-3 text-xs text-slate-400">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span>OR</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              fullWidth
+              isLoading={isLoading}
+              icon={GoogleIcon}
+              onClick={() => window.location.assign('/api/auth/google')}
+              className="py-3"
+            >
+              Continue with Google
+            </Button>
 
             {/* Quick Demo Credentials Box for Dev Ease */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">

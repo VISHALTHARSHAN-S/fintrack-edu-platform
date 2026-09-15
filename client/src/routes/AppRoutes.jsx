@@ -15,6 +15,7 @@ import Register from '../pages/auth/Register';
 import VerifyOtp from '../pages/auth/VerifyOtp';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
+import OAuthCallback from '../pages/auth/OAuthCallback';
 import Unauthorized from '../pages/auth/Unauthorized';
 import NotFound from '../pages/auth/NotFound';
 
@@ -72,6 +73,7 @@ const AppRoutes = () => {
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* PROTECTED STUDENT ROUTES */}

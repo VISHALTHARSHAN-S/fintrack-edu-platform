@@ -31,6 +31,36 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
   }
 });
 
+export const completeGoogleLogin = createAsyncThunk('auth/completeGoogleLogin', async (token, { rejectWithValue }) => {
+  try {
+    localStorage.setItem('fintrack_token', token);
+    const response = await API.get('/auth/me');
+    const user = response.data.user;
+
+    localStorage.setItem('fintrack_user', JSON.stringify(user));
+    return { token, user };
+  } catch (error) {
+    localStorage.removeItem('fintrack_token');
+    localStorage.removeItem('fintrack_user');
+    const message = error.response?.data?.message || error.message || 'Google login failed';
+    return rejectWithValue(message);
+  }
+});
+
+export const completeGoogleRegistration = createAsyncThunk('auth/completeGoogleRegistration', async (registrationData, { rejectWithValue }) => {
+  try {
+    const response = await API.post('/auth/google/register', registrationData);
+    const { token, user } = response.data;
+
+    localStorage.setItem('fintrack_token', token);
+    localStorage.setItem('fintrack_user', JSON.stringify(user));
+    return { token, user };
+  } catch (error) {
+    const message = error.response?.data?.message || error.message || 'Google registration failed';
+    return rejectWithValue(message);
+  }
+});
+
 // Async Thunk for User Registration
 export const register = createAsyncThunk('auth/register', async (userData, { rejectWithValue }) => {
   try {
@@ -99,6 +129,36 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(completeGoogleLogin.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(completeGoogleLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.error = null;
+      })
+      .addCase(completeGoogleLogin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(completeGoogleRegistration.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(completeGoogleRegistration.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.error = null;
+      })
+      .addCase(completeGoogleRegistration.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

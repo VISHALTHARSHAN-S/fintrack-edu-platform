@@ -141,6 +141,20 @@ Authentication is implemented with JWTs. The client stores the authenticated use
 
 The backend uses `protect` to validate JWTs and `authorizeRoles` to enforce role access.
 
+### Google OAuth configuration
+
+Google OAuth is an additional server-side authentication method. It uses the same FinTrack JWT, Redux auth state, local storage keys, protected routes, and role authorization as email/password login.
+
+Configure these variables in `server/.env` using values from a Google Cloud OAuth 2.0 Web application:
+
+```text
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+```
+
+Add the callback URL to the Google Cloud OAuth client's authorized redirect URIs. Start the backend and frontend normally. On the login page, **Continue with Google** authenticates an existing account. On the registration page, the selected role is sent to Google, verified profile data returns to the form, and the account is created only after the user completes the remaining FinTrack fields. Google users must have a verified email; a verified matching email never creates a duplicate or changes the stored role. The OAuth routes are `GET /api/auth/google`, `GET /api/auth/google/callback`, and `POST /api/auth/google/register`.
+
 ```text
 Browser
    |
