@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { connectDB } from './config/db.js';
+import { connectDB, isMongoConnected } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
@@ -20,6 +21,7 @@ import recruiterApplicationRoutes from './routes/recruiterApplicationRoutes.js';
 import recruiterInterviewRoutes from './routes/recruiterInterviewRoutes.js';
 import recruiterProfileRoutes from './routes/recruiterProfileRoutes.js';
 import recruiterMessageRoutes from './routes/recruiterMessageRoutes.js';
+import liveClassRoutes from './routes/liveClassRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -28,14 +30,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connect to Database
-let isDbConnected = false;
-connectDB().then((status) => {
-  isDbConnected = status;
-});
+connectDB();
 
-// Middleware to attach DB connectivity status to request
+// Middleware to attach the current MongoDB connection state to every request
 app.use((req, res, next) => {
-  req.isDbConnected = isDbConnected;
+  req.isDbConnected = isMongoConnected();
   next();
 });
 
@@ -49,11 +48,13 @@ if (process.env.NODE_ENV === 'development') {
 
 // Root Route & Health Check
 app.get('/api/health', (req, res) => {
+  const dbStatus = isMongoConnected() ? 'connected' : 'development-mock-fallback';
+
   res.json({
     status: 'online',
     app: 'FinTrack Edu Backend API',
     stage: 'Breakpoint 4 — Mentor Ecosystem',
-    database: isDbConnected ? 'connected' : 'development-mock-fallback',
+    database: dbStatus,
     timestamp: new Date().toISOString(),
   });
 });
@@ -64,6 +65,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/student/learning', studentLearningRoutes);
+app.use('/api/student/live-classes', liveClassRoutes);
 app.use('/api/practice', practiceRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/student/exams-assignments', examAssignmentRoutes);

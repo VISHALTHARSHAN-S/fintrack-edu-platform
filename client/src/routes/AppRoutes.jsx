@@ -35,6 +35,9 @@ import AssessmentExamPage from '../pages/student/AssessmentExamPage';
 import AssessmentResultPage from '../pages/student/AssessmentResultPage';
 import ExamsAndAssignmentsPage from '../pages/student/ExamsAndAssignmentsPage';
 import StudentPerformancePage from '../pages/student/StudentPerformancePage';
+import StudentLiveClassesPage from '../pages/student/StudentLiveClassesPage';
+import LiveClassDetailsPage from '../pages/student/LiveClassDetailsPage';
+import LiveClassRoomPage from '../pages/student/LiveClassRoomPage';
 import StudentPlaceholder from '../pages/student/StudentPlaceholder';
 
 // Mentor Pages
@@ -93,7 +96,9 @@ const AppRoutes = () => {
             <Route path="assessments/:assessmentId/result" element={<AssessmentResultPage />} />
             <Route path="exams" element={<ExamsAndAssignmentsPage />} />
             <Route path="assignments" element={<ExamsAndAssignmentsPage />} />
-            <Route path="live-classes" element={<StudentPlaceholder />} />
+            <Route path="live-classes" element={<StudentLiveClassesPage />} />
+            <Route path="live-classes/:classId" element={<LiveClassDetailsPage />} />
+            <Route path="live-classes/:classId/room" element={<LiveClassRoomPage />} />
             <Route path="mentors" element={<StudentPlaceholder />} />
             <Route path="certificates" element={<StudentPlaceholder />} />
             <Route path="skills" element={<StudentPlaceholder />} />

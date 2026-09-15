@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+const resourceSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    url: { type: String, required: true },
+    type: { type: String, required: true },
+  },
+  { _id: false }
+);
+
 const lessonSchema = new mongoose.Schema({
   lessonId: { type: String, required: true },
   title: { type: String, required: true },
@@ -7,13 +16,7 @@ const lessonSchema = new mongoose.Schema({
   type: { type: String, enum: ['video', 'reading', 'interactive'], default: 'video' },
   videoUrl: { type: String, default: '' },
   content: { type: String, default: '' },
-  resources: [
-    {
-      title: String,
-      url: String,
-      type: String,
-    },
-  ],
+    resources: [resourceSchema],
 });
 
 const moduleSchema = new mongoose.Schema({

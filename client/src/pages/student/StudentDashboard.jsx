@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   CheckCircle2,
@@ -19,9 +20,11 @@ import Badge from '../../components/common/Badge';
 import Button from '../../components/common/Button';
 import API from '../../services/api';
 import CardSkeleton from '../../components/common/LoadingSkeleton';
+import { fetchStudentLiveClasses } from '../../services/liveClassService';
 
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +32,7 @@ const StudentDashboard = () => {
     const fetchDashboard = async () => {
       try {
         const res = await API.get('/users/student/dashboard');
-        setData(res.data.data);
+        setData({ ...res.data.data, upcomingLiveClasses: [] });
       } catch (err) {
         console.warn('Using default demo data');
         setData({
@@ -45,14 +48,11 @@ const StudentDashboard = () => {
             { id: 2, title: 'Financial Machine Learning & Risk Modeling', progress: 45, category: 'AI & Finance', lastAccessed: 'Yesterday' },
             { id: 3, title: 'DeFi Protocols & Smart Contract Auditing', progress: 92, category: 'Blockchain', lastAccessed: '3 days ago' },
           ],
-          recommendedCourses: [
+            recommendedCourses: [
             { id: 4, title: 'RegTech Compliance & Anti-Money Laundering Systems', level: 'Intermediate', duration: '6 hours' },
             { id: 5, title: 'Quantitative Portfolio Optimization with Python', level: 'Advanced', duration: '10 hours' },
           ],
-          upcomingLiveClasses: [
-            { id: 101, title: 'Live Q&A: Building HFT Bots in C++', mentor: 'Dr. Aris Vance', time: 'Today at 6:00 PM', status: 'Upcoming' },
-            { id: 102, title: 'Regulatory Reporting & API Integration', mentor: 'Elena Rostova', time: 'Tomorrow at 4:00 PM', status: 'Scheduled' },
-          ],
+            upcomingLiveClasses: [],
         });
       } finally {
         setIsLoading(false);
@@ -60,6 +60,41 @@ const StudentDashboard = () => {
     };
 
     fetchDashboard();
+  }, []);
+
+  useEffect(() => {
+    const loadLiveClasses = async () => {
+      try {
+        const liveClasses = await fetchStudentLiveClasses();
+        const upcoming = (liveClasses || [])
+          .filter((item) => ['live', 'scheduled'].includes(item.currentState?.status || item.status))
+          .sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))
+          .slice(0, 3)
+          .map((item) => ({
+            id: item._id,
+            title: item.title,
+            mentor: item.mentor?.name || 'Industry Mentor',
+            course: item.course?.title || 'FinTech session',
+            time: new Date(item.scheduledAt).toLocaleString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            }),
+            status: (item.currentState?.status || item.status) === 'live' ? 'Live' : 'Upcoming',
+          }));
+
+        setData((prev) => ({
+          ...(prev || {}),
+          upcomingLiveClasses: upcoming,
+        }));
+      } catch (error) {
+        console.warn('Failed to load live classes for dashboard', error.message);
+        setData((prev) => ({ ...(prev || {}), upcomingLiveClasses: [] }));
+      }
+    };
+
+    loadLiveClasses();
   }, []);
 
   if (isLoading) {
@@ -74,7 +109,7 @@ const StudentDashboard = () => {
     );
   }
 
-  const { stats, learningProgress, recommendedCourses, upcomingLiveClasses } = data;
+  const { stats, learningProgress, recommendedCourses, upcomingLiveClasses = [] } = data || {};
 
   return (
     <div className="space-y-8 pb-12">
@@ -195,12 +230,19 @@ const StudentDashboard = () => {
               {upcomingLiveClasses.map((session) => (
                 <div key={session.id} className="p-4 rounded-2xl bg-brand-50/40 border border-brand-100 space-y-2">
                   <div className="flex justify-between items-start">
-                    <Badge variant="info" size="sm">{session.status}</Badge>
+                    <Badge variant={session.status === 'Live' ? 'error' : 'info'} size="sm">{session.status}</Badge>
                     <span className="text-[11px] font-medium text-slate-500">{session.time}</span>
                   </div>
                   <h5 className="font-semibold text-slate-900 text-xs leading-snug">{session.title}</h5>
                   <p className="text-[11px] text-slate-500">Mentor: {session.mentor}</p>
-                  <Button variant="primary" size="sm" fullWidth className="mt-2 text-xs">
+                  <p className="text-[11px] text-slate-500">Course: {session.course}</p>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    fullWidth
+                    className="mt-2 text-xs"
+                    onClick={() => navigate(`/student/live-classes/${session.id}`)}
+                  >
                     Join Session
                   </Button>
                 </div>

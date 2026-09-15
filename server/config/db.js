@@ -13,3 +13,5 @@ export const connectDB = async () => {
     return false;
   }
 };
+
+export const isMongoConnected = () => mongoose.connection.readyState === 1;

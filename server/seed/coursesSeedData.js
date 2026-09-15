@@ -1,6 +1,5 @@
 export const SEEDED_COURSES = [
   {
-    _id: 'c101',
     title: 'Algorithmic Trading & High-Frequency Strategies',
     slug: 'algorithmic-trading-hft-strategies',
     category: 'Quantitative Finance',
@@ -123,7 +122,6 @@ export const SEEDED_COURSES = [
     ],
   },
   {
-    _id: 'c102',
     title: 'Financial Machine Learning & Risk Modeling',
     slug: 'financial-machine-learning-risk-modeling',
     category: 'Financial AI & Analytics',
@@ -195,7 +193,6 @@ export const SEEDED_COURSES = [
     ],
   },
   {
-    _id: 'c103',
     title: 'DeFi Protocols & Smart Contract Auditing',
     slug: 'defi-protocols-smart-contract-auditing',
     category: 'DeFi & Blockchain',
@@ -251,7 +248,6 @@ export const SEEDED_COURSES = [
     ],
   },
   {
-    _id: 'c104',
     title: 'RegTech Compliance & Anti-Money Laundering Systems',
     slug: 'regtech-compliance-aml-systems',
     category: 'RegTech & Compliance',
@@ -297,7 +293,6 @@ export const SEEDED_COURSES = [
     ],
   },
   {
-    _id: 'c105',
     title: 'Digital Payments Architecture & UPI Infrastructure',
     slug: 'digital-payments-architecture-upi',
     category: 'Payments Infrastructure',
@@ -343,7 +338,6 @@ export const SEEDED_COURSES = [
     ],
   },
   {
-    _id: 'c106',
     title: 'Core Banking Systems & Neo Banking API Integration',
     slug: 'core-banking-systems-neo-banking-api',
     category: 'Banking & Neo Banking',

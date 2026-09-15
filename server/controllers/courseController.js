@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Course } from '../models/Course.js';
 import { SEEDED_COURSES } from '../seed/coursesSeedData.js';
 
@@ -29,8 +30,16 @@ export const getCourses = async (req, res) => {
 
       coursesList = await Course.find(query);
       if (coursesList.length === 0 && !search && (!category || category === 'All') && (!difficulty || difficulty === 'All')) {
-        // Auto-seed if database is empty
-        coursesList = await Course.insertMany(SEEDED_COURSES);
+        await Course.bulkWrite(
+          SEEDED_COURSES.map((course) => ({
+            updateOne: {
+              filter: { slug: course.slug },
+              update: { $set: course },
+              upsert: true,
+            },
+          }))
+        );
+        coursesList = await Course.find(query);
       }
     } else {
       // In-memory filter fallback
@@ -84,7 +93,9 @@ export const getCourseById = async (req, res) => {
     let course = null;
 
     if (req.isDbConnected) {
-      course = await Course.findById(courseId);
+      if (mongoose.isValidObjectId(courseId)) {
+        course = await Course.findById(courseId);
+      }
       if (!course) {
         course = await Course.findOne({ slug: courseId });
       }
