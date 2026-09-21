@@ -40,6 +40,13 @@ import StudentLiveClassesPage from '../pages/student/StudentLiveClassesPage';
 import LiveClassDetailsPage from '../pages/student/LiveClassDetailsPage';
 import LiveClassRoomPage from '../pages/student/LiveClassRoomPage';
 import StudentPlaceholder from '../pages/student/StudentPlaceholder';
+import StudentMentorConnectPage from '../pages/student/mentor/StudentMentorConnectPage';
+import StudentMentorProfilePage from '../pages/student/mentor/StudentMentorProfilePage';
+import StudentMentorBookingPage from '../pages/student/mentor/StudentMentorBookingPage';
+import StudentMentorSessionsPage from '../pages/student/mentor/StudentMentorSessionsPage';
+import StudentMentorSessionDetailsPage from '../pages/student/mentor/StudentMentorSessionDetailsPage';
+import StudentMentorMessagesPage from '../pages/student/mentor/StudentMentorMessagesPage';
+import StudentMentorFeedbackPage from '../pages/student/mentor/StudentMentorFeedbackPage';
 
 // Mentor Pages
 import MentorDashboard from '../pages/mentor/MentorDashboard';
@@ -101,7 +108,14 @@ const AppRoutes = () => {
             <Route path="live-classes" element={<StudentLiveClassesPage />} />
             <Route path="live-classes/:classId" element={<LiveClassDetailsPage />} />
             <Route path="live-classes/:classId/room" element={<LiveClassRoomPage />} />
-            <Route path="mentors" element={<StudentPlaceholder />} />
+            <Route path="mentors" element={<StudentMentorConnectPage />} />
+            <Route path="mentors/:mentorId/book" element={<StudentMentorBookingPage />} />
+            <Route path="mentors/:mentorId" element={<StudentMentorProfilePage />} />
+            <Route path="mentor-sessions" element={<StudentMentorSessionsPage />} />
+            <Route path="mentor-sessions/:sessionId" element={<StudentMentorSessionDetailsPage />} />
+            <Route path="mentor-sessions/:sessionId/feedback" element={<StudentMentorFeedbackPage />} />
+            <Route path="mentor-messages" element={<StudentMentorMessagesPage />} />
+            <Route path="mentor-messages/:mentorId" element={<StudentMentorMessagesPage />} />
             <Route path="certificates" element={<StudentPlaceholder />} />
             <Route path="skills" element={<StudentPlaceholder />} />
             <Route path="leaderboard" element={<StudentPlaceholder />} />

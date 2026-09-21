@@ -15,7 +15,7 @@ import {
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import CardSkeleton from '../../components/common/LoadingSkeleton';
-import { fetchMentorProfile, updateMentorProfileApi } from '../../services/mentorService';
+import { fetchMentorFeedback, fetchMentorProfile, updateMentorProfileApi } from '../../services/mentorService';
 
 const MentorProfilePage = () => {
   const [profile, setProfile] = useState(null);
@@ -23,6 +23,7 @@ const MentorProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [feedbackData, setFeedbackData] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -34,6 +35,8 @@ const MentorProfilePage = () => {
         setFormData(res);
         setIsLoading(false);
       }
+      const feedback = await fetchMentorFeedback();
+      if (isMounted) setFeedbackData(feedback);
     };
     loadProfile();
     return () => {
@@ -112,6 +115,16 @@ const MentorProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {feedbackData && (
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="font-bold text-slate-900">Mentor Rating</h3>
+            <div className="text-right"><p className="text-lg font-black text-amber-500">{feedbackData.summary.averageRating || 'No rating'} / 5</p><p className="text-xs text-slate-500">{feedbackData.summary.reviewsCount} reviews</p></div>
+          </div>
+          {feedbackData.feedback.length === 0 ? <p className="text-sm text-slate-500">No student feedback yet.</p> : <div className="space-y-3">{feedbackData.feedback.slice(0, 5).map((item) => <div key={item.feedbackId} className="border-b border-slate-100 last:border-0 pb-3 last:pb-0"><p className="text-amber-500">{'★'.repeat(item.rating)}{'☆'.repeat(5 - item.rating)}</p>{item.comment && <p className="text-sm text-slate-700 mt-1">"{item.comment}"</p>}<p className="text-xs text-slate-400 mt-1">{item.studentName}</p></div>)}</div>}
+        </div>
+      )}
 
       {/* EDIT FORM OR VIEW DETAILS */}
       {isEditing ? (

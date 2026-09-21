@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sliders,
-  Calendar,
-  Clock,
-  CheckCircle2,
   Save,
   Plus,
   Trash2,
@@ -17,14 +14,20 @@ const MentorAvailabilityPage = () => {
   const [availability, setAvailability] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     let isMounted = true;
     const loadAvailability = async () => {
       setIsLoading(true);
-      const res = await fetchMentorAvailability();
-      if (isMounted) {
-        setAvailability(res);
+      setError('');
+      try {
+        const res = await fetchMentorAvailability();
+        if (isMounted) setAvailability(res);
+      } catch (requestError) {
+        if (isMounted) setError(requestError.response?.data?.message || 'Unable to load your availability.');
+      } finally {
         setIsLoading(false);
       }
     };
@@ -45,12 +48,58 @@ const MentorAvailabilityPage = () => {
     });
   };
 
+  const handleDayFieldChange = (dayIndex, field, value) => {
+    setAvailability((prev) => {
+      const schedule = [...prev.weeklySchedule];
+      schedule[dayIndex] = { ...schedule[dayIndex], [field]: value };
+      return { ...prev, weeklySchedule: schedule };
+    });
+  };
+
+  const handleSlotChange = (dayIndex, slotIndex, value) => {
+    setAvailability((prev) => {
+      const schedule = [...prev.weeklySchedule];
+      const slots = [...schedule[dayIndex].slots];
+      slots[slotIndex] = { ...slots[slotIndex], time: value };
+      schedule[dayIndex] = { ...schedule[dayIndex], slots };
+      return { ...prev, weeklySchedule: schedule };
+    });
+  };
+
+  const addSlot = (dayIndex) => {
+    setAvailability((prev) => {
+      const schedule = [...prev.weeklySchedule];
+      const day = schedule[dayIndex];
+      const slots = [...(day.slots || [])];
+      slots.push({
+        slotId: `${day.day.toLowerCase()}_${Date.now()}`,
+        time: `${day.startTime} - ${day.endTime}`,
+        isBooked: false,
+      });
+      schedule[dayIndex] = { ...day, slots };
+      return { ...prev, weeklySchedule: schedule };
+    });
+  };
+
+  const removeSlot = (dayIndex, slotIndex) => {
+    setAvailability((prev) => {
+      const schedule = [...prev.weeklySchedule];
+      const slots = schedule[dayIndex].slots.filter((_, index) => index !== slotIndex);
+      schedule[dayIndex] = { ...schedule[dayIndex], slots };
+      return { ...prev, weeklySchedule: schedule };
+    });
+  };
+
   const handleSaveAvailability = async () => {
     setIsSaving(true);
+    setError('');
+    setSuccessMessage('');
     try {
-      await updateMentorAvailabilityApi(availability);
-    } catch (err) {
-      console.error('Error saving availability:', err);
+      const savedAvailability = await updateMentorAvailabilityApi(availability);
+      setAvailability(savedAvailability);
+      setSuccessMessage('Availability schedule saved successfully.');
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to save your availability.');
     } finally {
       setIsSaving(false);
     }
@@ -61,6 +110,14 @@ const MentorAvailabilityPage = () => {
       <div className="max-w-4xl mx-auto space-y-6 py-6">
         <CardSkeleton />
         <CardSkeleton />
+      </div>
+    );
+  }
+
+  if (error && !availability) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 text-center">
+        <p className="text-sm text-red-600">{error}</p>
       </div>
     );
   }
@@ -111,6 +168,9 @@ const MentorAvailabilityPage = () => {
         </div>
       </div>
 
+      {error && <div role="alert" className="rounded-xl bg-red-50 border border-red-100 text-red-700 p-3 text-sm">{error}</div>}
+      {successMessage && <div role="status" className="rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 p-3 text-sm">{successMessage}</div>}
+
       {/* WEEKLY SCHEDULE SETTINGS */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
         <h3 className="font-bold text-slate-900 text-base border-b border-slate-100 pb-3">
@@ -141,28 +201,52 @@ const MentorAvailabilityPage = () => {
                   </Badge>
                 </div>
 
-                {dayItem.isEnabled && (
-                  <span className="text-xs font-semibold text-purple-800">
-                    {dayItem.startTime} - {dayItem.endTime}
-                  </span>
-                )}
+                {dayItem.isEnabled && <span className="text-xs font-semibold text-purple-800">{dayItem.startTime} - {dayItem.endTime}</span>}
               </div>
 
+              {dayItem.isEnabled && (
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <label className="space-y-1">
+                    <span className="text-[11px] font-semibold text-slate-500">Start time</span>
+                    <input
+                      value={dayItem.startTime || ''}
+                      onChange={(event) => handleDayFieldChange(idx, 'startTime', event.target.value)}
+                      placeholder="09:00 AM"
+                      className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[11px] font-semibold text-slate-500">End time</span>
+                    <input
+                      value={dayItem.endTime || ''}
+                      onChange={(event) => handleDayFieldChange(idx, 'endTime', event.target.value)}
+                      placeholder="05:00 PM"
+                      className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                    />
+                  </label>
+                </div>
+              )}
+
               {/* SLOTS LIST */}
-              {dayItem.isEnabled && dayItem.slots?.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-100">
-                  {dayItem.slots.map((slot) => (
-                    <span
+              {dayItem.isEnabled && (
+                <div className="space-y-2 pt-2 border-t border-purple-100">
+                  {(dayItem.slots || []).map((slot, slotIndex) => (
+                    <div
                       key={slot.slotId}
-                      className={`px-3 py-1 rounded-lg text-xs font-mono font-medium border ${
-                        slot.isBooked
-                          ? 'bg-amber-100 border-amber-300 text-amber-900'
-                          : 'bg-white border-purple-200 text-purple-900'
-                      }`}
+                      className="flex items-center gap-2"
                     >
-                      {slot.time} {slot.isBooked && '(Booked)'}
-                    </span>
+                      <input
+                        value={slot.time || ''}
+                        onChange={(event) => handleSlotChange(idx, slotIndex, event.target.value)}
+                        placeholder="10:00 AM - 10:45 AM"
+                        className="flex-1 p-2 text-xs border border-slate-200 rounded-lg font-mono"
+                      />
+                      <button type="button" onClick={() => removeSlot(idx, slotIndex)} className="p-2 text-slate-400 hover:text-red-600" aria-label={`Remove ${dayItem.day} slot`}>
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   ))}
+                  <Button variant="ghost" size="sm" icon={Plus} onClick={() => addSlot(idx)}>Add slot</Button>
                 </div>
               )}
             </div>

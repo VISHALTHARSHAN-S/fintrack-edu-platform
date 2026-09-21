@@ -47,6 +47,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       { name: 'Student Performance', path: '/student/performance', icon: BarChart3 },
       { name: 'Live Classes', path: '/student/live-classes', icon: Video },
       { name: 'Mentor Connect', path: '/student/mentors', icon: Users },
+      { name: 'My Messages', path: '/student/mentor-messages', icon: MessageSquare },
       { name: 'Certificates', path: '/student/certificates', icon: Award },
       { name: 'Skill Tracker', path: '/student/skills', icon: LineChart },
       { name: 'Career & Jobs', path: '/student/career', icon: Briefcase },

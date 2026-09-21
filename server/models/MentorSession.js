@@ -27,4 +27,9 @@ const mentorSessionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+mentorSessionSchema.index(
+  { mentorId: 1, date: 1, timeSlot: 1 },
+  { unique: true, partialFilterExpression: { status: 'Upcoming' } }
+);
+
 export const MentorSession = mongoose.model('MentorSession', mentorSessionSchema);

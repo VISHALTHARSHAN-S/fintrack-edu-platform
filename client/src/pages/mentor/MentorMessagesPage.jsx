@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   MessageSquare,
+  FileText,
+  Paperclip,
   Search,
   Send,
   User,
   CheckCheck,
   Circle,
+  X,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import CardSkeleton from '../../components/common/LoadingSkeleton';
-import { fetchConversations, fetchMessageHistory, sendMessageApi } from '../../services/mentorMessageService';
+import { fetchConversations, fetchMessageHistory, sendMessageApi, sendMentorFileApi } from '../../services/mentorMessageService';
 
 const MentorMessagesPage = () => {
+  const { user } = useSelector((state) => state.auth);
   const [conversations, setConversations] = useState([]);
   const [activeStudentId, setActiveStudentId] = useState('');
   const [activeThread, setActiveThread] = useState(null);
   const [messageInput, setMessageInput] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,18 +56,21 @@ const MentorMessagesPage = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!messageInput.trim() || !activeStudentId) return;
+    if ((!messageInput.trim() && !selectedFile) || !activeStudentId) return;
 
     const text = messageInput.trim();
     setMessageInput('');
     setIsSending(true);
 
     try {
-      const newMsg = await sendMessageApi(activeStudentId, text);
+      const newMsg = selectedFile
+        ? await sendMentorFileApi(activeStudentId, selectedFile)
+        : await sendMessageApi(activeStudentId, text);
       setActiveThread((prev) => ({
         ...prev,
         messages: [...(prev?.messages || []), newMsg],
       }));
+      setSelectedFile(null);
     } catch (err) {
       console.error('Error sending message:', err);
     } finally {
@@ -173,7 +182,7 @@ const MentorMessagesPage = () => {
               {/* CHAT HISTORY */}
               <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/20">
                 {activeThread.messages?.map((msg) => {
-                  const isMentor = msg.senderId === 'mentor_1';
+                  const isMentor = msg.senderId === user?.id || msg.senderId === 'mentor_1';
                   return (
                     <div
                       key={msg.id}
@@ -186,7 +195,7 @@ const MentorMessagesPage = () => {
                             : 'bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200'
                         }`}
                       >
-                        {msg.text}
+                        {msg.messageType === 'file' && msg.attachment ? <a href={msg.attachment.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 underline"><FileText className="w-4 h-4" />{msg.attachment.fileName}<span className="text-[10px] no-underline">({Math.ceil(msg.attachment.fileSize / 1024)} KB)</span></a> : msg.text}
                       </div>
                       <span className="text-[10px] text-slate-400 mt-1 px-1">{msg.timestamp}</span>
                     </div>
@@ -196,6 +205,7 @@ const MentorMessagesPage = () => {
 
               {/* MESSAGE INPUT FORM */}
               <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-100 flex items-center gap-3 bg-white">
+                <label className="p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50" title="Attach file"><Paperclip className="w-4 h-4" /><input type="file" className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} /></label>
                 <input
                   type="text"
                   placeholder="Type your message to student..."
@@ -209,10 +219,12 @@ const MentorMessagesPage = () => {
                   size="md"
                   icon={Send}
                   isLoading={isSending}
+                  isDisabled={!messageInput.trim() && !selectedFile}
                   className="bg-purple-700 hover:bg-purple-800 text-white px-5"
                 >
                   Send
                 </Button>
+                {selectedFile && <span className="absolute bottom-2 left-4 text-[10px] text-slate-500">{selectedFile.name} <button type="button" onClick={() => setSelectedFile(null)} aria-label="Remove selected file"><X className="inline w-3 h-3" /></button></span>}
               </form>
             </>
           ) : (

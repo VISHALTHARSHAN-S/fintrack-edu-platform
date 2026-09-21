@@ -47,3 +47,11 @@ export const sendMessageApi = async (studentId, text) => {
     return newMsg;
   }
 };
+
+export const sendMentorFileApi = async (studentId, file) => {
+  const formData = new FormData();
+  formData.append('studentId', studentId);
+  formData.append('file', file);
+  const res = await API.post('/mentor/messages/file', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return res.data.data;
+};

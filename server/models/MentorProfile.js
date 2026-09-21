@@ -40,6 +40,10 @@ const mentorProfileSchema = new mongoose.Schema(
       type: Number,
       default: 4.9,
     },
+    reviewsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

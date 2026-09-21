@@ -5,7 +5,6 @@ import {
   MOCK_MENTOR_SESSIONS,
   MOCK_CONNECT_REQUESTS,
   MOCK_MENTOR_PROFILE,
-  MOCK_MENTOR_AVAILABILITY,
 } from '../data/mockMentorData';
 
 export const fetchMentorDashboard = async () => {
@@ -101,20 +100,16 @@ export const updateMentorProfileApi = async (payload) => {
 };
 
 export const fetchMentorAvailability = async () => {
-  try {
-    const res = await API.get('/mentor/availability');
-    return res.data.data;
-  } catch (error) {
-    return MOCK_MENTOR_AVAILABILITY;
-  }
+  const res = await API.get('/mentor/availability');
+  return res.data.data;
 };
 
 export const updateMentorAvailabilityApi = async (payload) => {
-  try {
-    const res = await API.put('/mentor/availability', payload);
-    return res.data.data;
-  } catch (error) {
-    Object.assign(MOCK_MENTOR_AVAILABILITY, payload);
-    return MOCK_MENTOR_AVAILABILITY;
-  }
+  const res = await API.put('/mentor/availability', payload);
+  return res.data.data;
+};
+
+export const fetchMentorFeedback = async () => {
+  const res = await API.get('/mentor/feedback');
+  return res.data.data;
 };

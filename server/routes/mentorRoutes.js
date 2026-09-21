@@ -22,6 +22,9 @@ import {
   sendMessage,
 } from '../controllers/mentorMessageController.js';
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
+import { getMentorFeedback } from '../controllers/mentorFeedbackController.js';
+import { sendMentorStudentFile } from '../controllers/mentorMessageFileController.js';
+import { uploadMentorChatFile } from '../middleware/mentorChatUpload.js';
 
 const router = express.Router();
 
@@ -48,6 +51,8 @@ router.put('/sessions/:sessionId', updateSessionStatus);
 router.get('/messages/conversations', getConversations);
 router.get('/messages/thread/:studentId', getMessageHistory);
 router.post('/messages/send', sendMessage);
+router.post('/messages/file', uploadMentorChatFile, sendMentorStudentFile);
+router.get('/feedback', getMentorFeedback);
 
 // Profile & Availability
 router.get('/profile', getMentorProfile);
