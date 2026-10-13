@@ -50,6 +50,7 @@ Implemented or clearly present:
 - Student progress and performance views
 - Practice Zone, practice questions, submissions, and results
 - Assessment Center, assessment details, attempts, and results
+- Student certificates with course completion checks, downloadable PDF credentials, QR codes, and public verification
 - Exams and Assignments views and assignment submission
 - Notifications
 
@@ -57,7 +58,6 @@ Currently represented by placeholders or not yet implemented as a complete stude
 
 - Live classes
 - Mentor Connect student workflow
-- Certificates
 - Skill Tracker / student Skill Passport
 - Student Career Profile
 - Student Job Discovery
@@ -533,6 +533,8 @@ The current recruiter controllers also expose seeded demo records from `server/s
 | Express.js | REST API server |
 | MongoDB | Database |
 | Mongoose | MongoDB ODM and schemas |
+| PDFKit | Landscape certificate PDF generation |
+| qrcode | Certificate verification QR codes |
 | JSON Web Token | Authentication tokens |
 | bcryptjs | Password hashing and verification |
 | CORS | Cross-origin API configuration |
@@ -571,9 +573,16 @@ Variables used by the server configuration include:
 - `JWT_SECRET` — JWT signing secret; use a private local value.
 - `JWT_EXPIRE` — JWT expiration setting; defaults to `30d` in token generation.
 - `CLIENT_URL` — allowed CORS origin; defaults to `http://localhost:5173`.
+- `PUBLIC_APP_URL` — optional public client origin embedded in certificate QR links; defaults to `CLIENT_URL`.
 - `MOCK_MODE` — present in the supplied environment example. Current fallback behavior is primarily selected from database connectivity and controller fallback logic.
 
 Do not place passwords, tokens, private MongoDB credentials, or production secrets in this README.
+
+### Student certificates
+
+Student certificate APIs are mounted at `/api/certificates`. The student dashboard lists issued certificates, checks completed course eligibility, and requests issuance; the public endpoint `/api/certificates/verify/:verificationId` exposes only credential status, course, issuer, certificate number, and issue date. PDF downloads include the student's stored account name and a QR code linking to `/verify/:verificationId` on the client.
+
+Certificate issuance requires a persisted enrollment marked complete with 100% progress and a completed-lesson set matching every lesson in the course. Configure course assessment prerequisites with the `requiredAssessmentIds` string array on a `Course` document; the seeded analytics, DeFi, and digital-payments courses use the corresponding seeded assessments. Each prerequisite must have a persisted completed passing attempt meeting that assessment's configured passing percentage. Courses with no configured prerequisites require only verified course completion. Certificate endpoints return an error while MongoDB is unavailable and never use demo enrollment or assessment data for issuance.
 
 ## 13. Installation and Running
 

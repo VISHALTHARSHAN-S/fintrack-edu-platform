@@ -55,6 +55,10 @@ const courseSchema = new mongoose.Schema(
     },
     description: { type: String, required: true },
     outcomes: [{ type: String }],
+    requiredAssessmentIds: {
+      type: [{ type: String, trim: true }],
+      default: [],
+    },
     modules: [moduleSchema],
     thumbnailUrl: { type: String, default: '' },
     tags: [{ type: String }],

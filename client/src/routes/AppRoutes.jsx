@@ -40,6 +40,8 @@ import StudentLiveClassesPage from '../pages/student/StudentLiveClassesPage';
 import LiveClassDetailsPage from '../pages/student/LiveClassDetailsPage';
 import LiveClassRoomPage from '../pages/student/LiveClassRoomPage';
 import StudentPlaceholder from '../pages/student/StudentPlaceholder';
+import StudentCertificatesPage from '../pages/student/StudentCertificatesPage';
+import CertificateVerificationPage from '../pages/CertificateVerificationPage';
 import StudentMentorConnectPage from '../pages/student/mentor/StudentMentorConnectPage';
 import StudentMentorProfilePage from '../pages/student/mentor/StudentMentorProfilePage';
 import StudentMentorBookingPage from '../pages/student/mentor/StudentMentorBookingPage';
@@ -82,6 +84,7 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="/verify/:verificationId" element={<CertificateVerificationPage />} />
 
       {/* PROTECTED STUDENT ROUTES */}
       <Route element={<ProtectedRoute />}>
@@ -116,7 +119,7 @@ const AppRoutes = () => {
             <Route path="mentor-sessions/:sessionId/feedback" element={<StudentMentorFeedbackPage />} />
             <Route path="mentor-messages" element={<StudentMentorMessagesPage />} />
             <Route path="mentor-messages/:mentorId" element={<StudentMentorMessagesPage />} />
-            <Route path="certificates" element={<StudentPlaceholder />} />
+            <Route path="certificates" element={<StudentCertificatesPage />} />
             <Route path="skills" element={<StudentPlaceholder />} />
             <Route path="leaderboard" element={<StudentPlaceholder />} />
             <Route path="career" element={<StudentPlaceholder />} />

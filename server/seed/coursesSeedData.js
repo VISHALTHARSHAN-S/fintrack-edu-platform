@@ -2,6 +2,7 @@ export const SEEDED_COURSES = [
   {
     title: 'Algorithmic Trading & High-Frequency Strategies',
     slug: 'algorithmic-trading-hft-strategies',
+    requiredAssessmentIds: ['asm_103'],
     category: 'Quantitative Finance',
     difficulty: 'Advanced',
     duration: '8.5 hours',
@@ -124,6 +125,7 @@ export const SEEDED_COURSES = [
   {
     title: 'Financial Machine Learning & Risk Modeling',
     slug: 'financial-machine-learning-risk-modeling',
+    requiredAssessmentIds: ['asm_103'],
     category: 'Financial AI & Analytics',
     difficulty: 'Intermediate',
     duration: '6.5 hours',
@@ -195,6 +197,7 @@ export const SEEDED_COURSES = [
   {
     title: 'DeFi Protocols & Smart Contract Auditing',
     slug: 'defi-protocols-smart-contract-auditing',
+    requiredAssessmentIds: ['asm_102'],
     category: 'DeFi & Blockchain',
     difficulty: 'Advanced',
     duration: '10 hours',
@@ -295,6 +298,7 @@ export const SEEDED_COURSES = [
   {
     title: 'Digital Payments Architecture & UPI Infrastructure',
     slug: 'digital-payments-architecture-upi',
+    requiredAssessmentIds: ['asm_101'],
     category: 'Payments Infrastructure',
     difficulty: 'Beginner',
     duration: '6 hours',
