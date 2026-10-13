@@ -89,7 +89,7 @@ const MentorSessionsPage = () => {
             size="md"
             icon={Plus}
             onClick={() => navigate('/mentor/sessions/new')}
-            className="bg-purple-600 hover:bg-purple-500 text-white font-bold shrink-0 shadow-lg"
+            className="shrink-0 bg-purple-600 font-bold text-white shadow-sm hover:bg-purple-700"
           >
             Schedule New Session
           </Button>

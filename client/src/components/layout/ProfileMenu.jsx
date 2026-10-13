@@ -38,7 +38,7 @@ const ProfileMenu = () => {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-100/80 transition-colors focus:outline-none cursor-pointer"
+        className="flex cursor-pointer items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-slate-100 focus-visible:outline-none"
       >
         <Avatar name={user?.name || 'User'} size="sm" />
         <div className="hidden sm:block text-left">
@@ -55,7 +55,7 @@ const ProfileMenu = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white p-2 shadow-2xl border border-slate-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
           {/* User Info Header */}
           <div className="p-3 border-b border-slate-100 mb-1">
             <p className="text-sm font-semibold text-slate-900">{user?.name || 'Vishaltharshan S'}</p>
@@ -74,7 +74,7 @@ const ProfileMenu = () => {
                 setIsOpen(false);
                 navigate(getProfilePath());
               }}
-              className="flex items-center gap-3 px-3 py-2 w-full text-left text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+              className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
             >
               <User className="w-4 h-4 text-slate-400" />
               <span>My Profile</span>
@@ -84,7 +84,7 @@ const ProfileMenu = () => {
                 setIsOpen(false);
                 navigate(getProfilePath());
               }}
-              className="flex items-center gap-3 px-3 py-2 w-full text-left text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+              className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
             >
               <Settings className="w-4 h-4 text-slate-400" />
               <span>Settings & Privacy</span>

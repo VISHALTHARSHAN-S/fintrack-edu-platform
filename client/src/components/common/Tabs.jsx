@@ -13,7 +13,7 @@ const Tabs = ({ tabs = [], activeTab, onChange, className = '' }) => {
               onClick={() => onChange(tab.id)}
               className={`flex items-center gap-2 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-150 cursor-pointer ${
                 isActive
-                  ? 'border-brand-600 text-brand-600'
+                  ? 'border-brand-700 text-brand-800'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >

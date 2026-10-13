@@ -4,7 +4,7 @@ const ProgressBar = ({ value = 0, max = 100, label, showValue = true, variant = 
   const percentage = Math.min(Math.max(0, Math.round((value / max) * 100)), 100);
 
   const colors = {
-    brand: 'bg-gradient-to-r from-brand-500 to-accent-purple',
+    brand: 'bg-brand-600',
     emerald: 'bg-emerald-500',
     amber: 'bg-amber-500',
     blue: 'bg-blue-500',

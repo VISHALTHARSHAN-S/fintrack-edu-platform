@@ -30,7 +30,7 @@ const AppLayout = ({ title, subtitle }) => {
   const { title: pageTitle, subtitle: pageSubtitle } = getPageTitles();
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -44,7 +44,7 @@ const AppLayout = ({ title, subtitle }) => {
 
         <NotificationPanel />
 
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
+        <main className="mx-auto w-full max-w-7xl flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
       </div>

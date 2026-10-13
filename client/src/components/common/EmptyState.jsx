@@ -12,9 +12,9 @@ const EmptyState = ({
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 md:p-12 text-center bg-white rounded-2xl border border-slate-100 shadow-sm ${className}`}
+      className={`flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card md:p-12 ${className}`}
     >
-      <div className="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mb-4 ring-8 ring-brand-50/50">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-800">
         <Icon className="w-8 h-8" />
       </div>
       <h3 className="text-lg font-semibold text-slate-900 mb-1">{title}</h3>

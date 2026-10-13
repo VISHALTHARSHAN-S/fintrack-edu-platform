@@ -15,14 +15,14 @@ const Toast = ({ message, type = 'info', onClose, duration = 4000 }) => {
     success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />,
     error: <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />,
     warning: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-    info: <Info className="w-5 h-5 text-blue-500 shrink-0" />,
+    info: <Info className="w-5 h-5 text-brand-800 shrink-0" />,
   };
 
   const borders = {
-    success: 'border-emerald-200 bg-white text-slate-800 shadow-lg shadow-emerald-500/10',
-    error: 'border-red-200 bg-white text-slate-800 shadow-lg shadow-red-500/10',
-    warning: 'border-amber-200 bg-white text-slate-800 shadow-lg shadow-amber-500/10',
-    info: 'border-blue-200 bg-white text-slate-800 shadow-lg shadow-blue-500/10',
+    success: 'border-emerald-200 bg-white text-slate-800 shadow-card',
+    error: 'border-red-200 bg-white text-slate-800 shadow-card',
+    warning: 'border-amber-200 bg-white text-slate-800 shadow-card',
+    info: 'border-slate-200 bg-white text-slate-800 shadow-card',
   };
 
   return (

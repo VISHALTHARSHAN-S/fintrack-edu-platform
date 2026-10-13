@@ -277,7 +277,7 @@ const StudentDashboard = () => {
               </div>
             </div>
 
-            <Button variant="primary" fullWidth size="sm" className="bg-brand-600 hover:bg-brand-500">
+            <Button variant="primary" fullWidth size="sm">
               Share Skill Passport
             </Button>
           </div>

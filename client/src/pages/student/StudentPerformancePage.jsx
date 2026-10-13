@@ -156,7 +156,7 @@ const StudentPerformancePage = () => {
                   size="sm"
                   iconRight={ArrowRight}
                   onClick={() => navigate('/student/practice')}
-                  className="mt-3 bg-brand-600 hover:bg-brand-500 text-xs"
+                  className="mt-3 text-xs"
                 >
                   {rec.actionText}
                 </Button>

@@ -27,7 +27,7 @@ const Input = ({
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
-      <div className="relative rounded-md shadow-sm">
+      <div className="relative">
         {Icon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
             <Icon className="h-4 h-4" />
@@ -42,12 +42,12 @@ const Input = ({
           placeholder={placeholder}
           disabled={disabled}
           required={required}
-          className={`block w-full rounded-lg border text-sm transition-all duration-150 focus:outline-none focus:ring-2 disabled:bg-slate-50 disabled:text-slate-500 ${
+          className={`block w-full rounded-xl border bg-white text-sm transition-colors duration-150 focus:outline-none focus:ring-2 disabled:bg-slate-50 disabled:text-slate-500 ${
             Icon ? 'pl-9' : 'pl-3.5'
           } ${isPassword ? 'pr-10' : 'pr-3.5'} py-2.5 ${
             error
               ? 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-200'
-              : 'border-slate-300 text-slate-900 focus:border-brand-500 focus:ring-brand-100'
+              : 'border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-brand-700 focus:ring-brand-100'
           } ${className}`}
           {...props}
         />

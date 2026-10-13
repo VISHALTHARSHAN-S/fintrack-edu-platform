@@ -163,7 +163,7 @@ const MentorDashboard = () => {
                       size="sm"
                       icon={Video}
                       onClick={() => window.open(session.meetingLink || 'https://meet.fintrack.edu', '_blank')}
-                      className="bg-brand-600 hover:bg-brand-500 text-xs"
+                      className="text-xs"
                     >
                       Join
                     </Button>

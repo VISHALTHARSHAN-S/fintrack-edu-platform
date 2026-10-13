@@ -11,7 +11,7 @@ const Header = ({ title = 'Dashboard', subtitle = 'Welcome to FinTrack Edu Platf
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between transition-all">
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3.5 transition-colors sm:px-6 lg:px-8">
       {/* LEFT SECTION */}
       <div className="flex items-center gap-3">
         <button
@@ -21,9 +21,9 @@ const Header = ({ title = 'Dashboard', subtitle = 'Welcome to FinTrack Edu Platf
           <Menu className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">{title}</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">{title}</h1>
           {subtitle && (
-            <p className="text-xs text-slate-500 hidden sm:block font-normal">{subtitle}</p>
+            <p className="hidden text-xs font-normal text-slate-600 sm:block">{subtitle}</p>
           )}
         </div>
       </div>
@@ -39,18 +39,18 @@ const Header = ({ title = 'Dashboard', subtitle = 'Welcome to FinTrack Edu Platf
         <div className="relative">
           <button
             onClick={() => dispatch(toggleNotificationPanel())}
-            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-brand-600 transition-colors relative cursor-pointer"
+            className="relative cursor-pointer rounded-xl p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-brand-800 focus-visible:outline-none"
             aria-label="Notifications"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-600 ring-2 ring-white" />
+              <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-[#C9897F] ring-2 ring-white" />
             )}
           </button>
         </div>
 
         {/* User Profile Menu */}
-        <div className="pl-2 border-l border-slate-200">
+        <div className="border-l border-slate-200 pl-2">
           <ProfileMenu />
         </div>
       </div>

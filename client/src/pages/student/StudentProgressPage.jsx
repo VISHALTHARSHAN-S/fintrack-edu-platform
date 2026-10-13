@@ -231,7 +231,7 @@ const StudentProgressPage = () => {
               Your verified score is synced automatically with recruiter search profiles for FinTech placement opportunities.
             </p>
 
-            <Button variant="primary" fullWidth size="sm" className="bg-brand-600 hover:bg-brand-500">
+            <Button variant="primary" fullWidth size="sm">
               View Verified Skill Passport
             </Button>
           </div>

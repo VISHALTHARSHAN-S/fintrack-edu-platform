@@ -28,7 +28,7 @@ const ConfirmDialog = ({
           <p className="text-sm text-slate-600 leading-relaxed mt-1">{message}</p>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+        <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
           <Button variant="secondary" onClick={onClose} isDisabled={isLoading}>
             {cancelText}
           </Button>

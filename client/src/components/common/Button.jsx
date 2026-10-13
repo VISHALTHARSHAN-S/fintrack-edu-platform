@@ -15,19 +15,19 @@ const Button = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer';
+    'inline-flex items-center justify-center rounded-xl font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer';
 
   const variants = {
     primary:
-      'bg-brand-600 hover:bg-brand-700 text-white focus:ring-brand-500 shadow-sm shadow-brand-500/20 active:scale-[0.99]',
+      'bg-brand-500 text-slate-950 hover:bg-brand-600 hover:text-white focus:ring-brand-700 active:bg-brand-700 active:text-white',
     secondary:
-      'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-brand-500 shadow-sm active:scale-[0.99]',
+      'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:ring-brand-700 active:bg-slate-100',
     outline:
-      'bg-transparent text-brand-600 border border-brand-600 hover:bg-brand-50 focus:ring-brand-500',
+      'border border-brand-700 bg-transparent text-brand-800 hover:bg-brand-50 focus:ring-brand-700',
     danger:
-      'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm active:scale-[0.99]',
+      'bg-red-700 text-white hover:bg-red-800 focus:ring-red-700 active:bg-red-900',
     ghost:
-      'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:ring-slate-400',
+      'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:ring-slate-500',
   };
 
   const sizes = {

@@ -100,7 +100,7 @@ const StudentDetailPage = () => {
               size="md"
               icon={Calendar}
               onClick={() => navigate('/mentor/sessions/new')}
-              className="bg-purple-600 hover:bg-purple-500 text-white"
+              className="bg-purple-600 text-white hover:bg-purple-700"
             >
               Schedule Session
             </Button>

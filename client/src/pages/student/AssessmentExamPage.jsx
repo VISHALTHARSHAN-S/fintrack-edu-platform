@@ -298,7 +298,7 @@ const AssessmentExamPage = () => {
               size="md"
               icon={Send}
               onClick={() => setShowSubmitConfirmModal(true)}
-              className="mt-2 bg-brand-600 hover:bg-brand-500"
+              className="mt-2"
             >
               Submit Exam Final
             </Button>

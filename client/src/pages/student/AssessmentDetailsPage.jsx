@@ -147,7 +147,7 @@ const AssessmentDetailsPage = () => {
             size="lg"
             icon={Play}
             onClick={() => setShowStartModal(true)}
-            className="w-full sm:w-auto px-8 bg-brand-600 hover:bg-brand-500 shadow-lg shadow-brand-500/20"
+            className="w-full px-8 shadow-sm sm:w-auto"
           >
             Start Assessment Exam
           </Button>

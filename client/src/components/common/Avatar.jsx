@@ -19,7 +19,7 @@ const Avatar = ({ name = 'User', src = '', size = 'md', className = '' }) => {
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center rounded-full font-semibold bg-gradient-to-br from-brand-500 to-indigo-700 text-white shadow-sm shrink-0 ring-2 ring-white ${sizes[size]} ${className}`}
+      className={`relative inline-flex shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-950 ring-2 ring-white ${sizes[size]} ${className}`}
     >
       {src ? (
         <img src={src} alt={name} className="w-full h-full rounded-full object-cover" />
