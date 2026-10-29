@@ -49,6 +49,8 @@ import CareerApplicationsPage from '../pages/student/CareerApplicationsPage';
 import CareerInterviewsPage from '../pages/student/CareerInterviewsPage';
 import CareerProfilePage from '../pages/student/CareerProfilePage';
 import NotificationCenterPage from '../pages/student/NotificationCenterPage';
+import StudentSettingsPage from '../pages/student/StudentSettingsPage';
+import StudentSupportPage from '../pages/student/StudentSupportPage';
 import CertificateVerificationPage from '../pages/CertificateVerificationPage';
 import StudentMentorConnectPage from '../pages/student/mentor/StudentMentorConnectPage';
 import StudentMentorProfilePage from '../pages/student/mentor/StudentMentorProfilePage';
@@ -139,8 +141,8 @@ const AppRoutes = () => {
             <Route path="career/interviews" element={<CareerInterviewsPage />} />
             <Route path="career/profile" element={<CareerProfilePage />} />
             <Route path="notifications" element={<NotificationCenterPage />} />
-            <Route path="settings" element={<StudentPlaceholder />} />
-            <Route path="support" element={<StudentPlaceholder />} />
+            <Route path="settings" element={<StudentSettingsPage />} />
+            <Route path="support" element={<StudentSupportPage />} />
           </Route>
         </Route>
       </Route>

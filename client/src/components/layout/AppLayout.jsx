@@ -5,15 +5,22 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import NotificationPanel from './NotificationPanel';
 import { loadNotifications } from '../../features/notifications/notificationSlice';
+import { useSelector } from 'react-redux';
 
 const AppLayout = ({ title, subtitle }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     dispatch(loadNotifications());
   }, [dispatch]);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem(`fintrack_theme_${user?.id || 'student'}`);
+    document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light';
+  }, [user?.id]);
 
   const getPageTitles = () => {
     const path = location.pathname;

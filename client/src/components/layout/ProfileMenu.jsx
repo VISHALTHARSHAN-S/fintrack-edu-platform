@@ -40,7 +40,7 @@ const ProfileMenu = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex cursor-pointer items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-slate-100 focus-visible:outline-none"
       >
-        <Avatar name={user?.name || 'User'} size="sm" />
+        <Avatar name={user?.name || 'User'} src={user?.avatar || ''} size="sm" />
         <div className="hidden sm:block text-left">
           <p className="text-sm font-semibold text-slate-800 leading-tight">
             {user?.name || 'Vishaltharshan S'}

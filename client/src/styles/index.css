@@ -55,6 +55,83 @@
   }
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #111a17;
+  --color-surface: #1b2622;
+  --color-surface-muted: #25322d;
+  --color-border: #394842;
+  --color-text-primary: #e3e9e5;
+  --color-text-secondary: #b0bdb6;
+  --color-focus: #a9c1b7;
+}
+
+html[data-theme='dark'] body {
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+}
+
+html[data-theme='dark'] .bg-white,
+html[data-theme='dark'] [class~='bg-white/70'],
+html[data-theme='dark'] [class~='bg-white/80'],
+html[data-theme='dark'] [class~='bg-white/95'] {
+  background-color: var(--color-surface);
+}
+
+html[data-theme='dark'] .bg-slate-50,
+html[data-theme='dark'] .bg-slate-100,
+html[data-theme='dark'] [class~='bg-[#F0EEEA]'] {
+  background-color: var(--color-surface-muted);
+}
+
+html[data-theme='dark'] .bg-brand-50,
+html[data-theme='dark'] .bg-indigo-50,
+html[data-theme='dark'] .bg-purple-50 {
+  background-color: #263a32;
+}
+
+html[data-theme='dark'] .bg-brand-100,
+html[data-theme='dark'] .bg-indigo-100 {
+  background-color: #344a40;
+}
+
+html[data-theme='dark'] .text-slate-900,
+html[data-theme='dark'] .text-slate-950,
+html[data-theme='dark'] .text-slate-800 {
+  color: #e3e9e5;
+}
+
+html[data-theme='dark'] .text-slate-700,
+html[data-theme='dark'] .text-slate-600,
+html[data-theme='dark'] .text-slate-500 {
+  color: #b0bdb6;
+}
+
+html[data-theme='dark'] .text-slate-400 {
+  color: #8d9c94;
+}
+
+html[data-theme='dark'] .text-brand-950,
+html[data-theme='dark'] .text-brand-900,
+html[data-theme='dark'] .text-brand-800,
+html[data-theme='dark'] .text-brand-700 {
+  color: #c3d8cc;
+}
+
+html[data-theme='dark'] .border-slate-100,
+html[data-theme='dark'] .border-slate-200,
+html[data-theme='dark'] .border-slate-300,
+html[data-theme='dark'] .border-brand-100,
+html[data-theme='dark'] .border-brand-200 {
+  border-color: var(--color-border);
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select {
+  color-scheme: dark;
+}
+
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

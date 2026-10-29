@@ -19,6 +19,8 @@ const settingsSchema = new mongoose.Schema(
       course: { type: Boolean, default: true },
       mentor: { type: Boolean, default: true },
       general: { type: Boolean, default: true },
+      learningReminder: { type: Boolean, default: true },
+      support: { type: Boolean, default: true },
     },
     securityAlerts: {
       type: Boolean,
@@ -26,6 +28,7 @@ const settingsSchema = new mongoose.Schema(
     },
     theme: {
       type: String,
+      enum: ['light', 'dark'],
       default: 'light',
     },
     twoFactorEnabled: {

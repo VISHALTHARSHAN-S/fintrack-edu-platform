@@ -20,6 +20,7 @@ const categories = [
   ['certificate', 'Certificates'],
   ['course', 'Course progress'],
   ['mentor', 'Mentor updates'],
+  ['support', 'Support request updates'],
   ['general', 'General updates'],
 ];
 

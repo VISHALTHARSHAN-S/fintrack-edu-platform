@@ -54,6 +54,7 @@ Implemented or clearly present:
 - Exams and Assignments views and assignment submission
 - Evidence-based Student Skill Tracker with detailed evidence and Skill Passport records
 - Career dashboard, editable career profile, job discovery and matching, job applications, application tracking, and interview schedules
+- Help Center with searchable FAQs, secure student support tickets, ticket history, replies, reopening, and optional validated attachments
 - Persistent notifications with unread/read state and per-category in-app preferences
 
 Currently represented by placeholders or not yet implemented:
@@ -331,7 +332,9 @@ There is no root-level package.json. Install and run the client and server from 
 - `/student/settings`
 - `/student/support`
 
-The leaderboard, settings, and support routes currently render `StudentPlaceholder`.
+The support route provides a database-backed Help Center and student-scoped ticket tracking.
+
+The leaderboard route currently renders `StudentPlaceholder`.
 
 ### Mentor
 
@@ -444,15 +447,25 @@ Skill scores are the arithmetic mean of the student's completed assessment perce
 
 - `GET /api/student/performance`
 
+### Student Help & Support — student role
+
+- `GET /api/student/support/tickets` — list the authenticated student's tickets; supports `search`, `status`, `page`, and `limit`
+- `POST /api/student/support/tickets` — create a ticket with a server-generated ID, category, subject, description, priority, and optional attachment
+- `GET /api/student/support/tickets/:ticketId` — view a ticket and its conversation/status history
+- `POST /api/student/support/tickets/:ticketId/replies` — reply to an open or in-progress ticket
+- `POST /api/student/support/tickets/:ticketId/reopen` — reopen a resolved or closed ticket
+
+Ticket list, detail, reply, and reopen operations are scoped to the authenticated student. Optional uploads accept PNG, JPEG, WebP, or PDF files up to 5 MB and require the existing Cloudinary configuration. The current RBAC model has no support-agent/admin role, so staff ticket-management endpoints are intentionally not exposed.
+
 ### Notifications — authenticated users
 
 - `GET /api/notifications` — recipient-scoped list; accepts `?unread=true`
 - `PUT /api/notifications/:id/read` — recipient-scoped mark as read
 - `PUT /api/notifications/read-all` — mark all of the current recipient's notifications as read
 - `GET /api/notifications/preferences`
-- `PUT /api/notifications/preferences` — update in-app categories: career, assessment, certificate, course, mentor, and general
+- `PUT /api/notifications/preferences` — update in-app categories, including support request updates
 
-Notifications are stored with unique recipient/event keys to deduplicate retried events. Application, interview, assessment, certificate, lesson-completion, mentor-session, and matching-job events use the recipient's notification preferences.
+Notifications are stored with unique recipient/event keys to deduplicate retried events. Application, interview, assessment, certificate, lesson-completion, mentor-session, matching-job, and successful support-ticket submission events use the recipient's notification preferences.
 
 ### Mentor — mentor role
 
@@ -531,6 +544,8 @@ The server contains the following Mongoose models:
 - `Assignment` — assignment definitions
 - `AssignmentSubmission` — student assignment submissions
 - `Notification` — persisted recipient-scoped notifications, read state, category, and idempotent event key
+- `SupportTicket` — student-owned ticket details, attachments, messages, status, and history
+- `SupportTicketCounter` — atomic per-year ticket ID sequence
 - `CandidateProfile` — student career profile and resume details
 - `Job` — recruiter-owned job postings
 - `JobApplication` — student application, match evidence, and recruiter workflow status

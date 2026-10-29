@@ -101,6 +101,11 @@ const authSlice = createSlice({
       state.error = null;
       state.verificationPendingEmail = null;
     },
+    updateUserProfile: (state, action) => {
+      if (!state.user) return;
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem('fintrack_user', JSON.stringify(state.user));
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -196,5 +201,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setVerificationEmail, setToast, clearToast } = authSlice.actions;
+export const { logout, updateUserProfile, clearError, setVerificationEmail, setToast, clearToast } = authSlice.actions;
 export default authSlice.reducer;

@@ -9,6 +9,8 @@ const preferenceCategories = [
   'course',
   'mentor',
   'general',
+  'learningReminder',
+  'support',
 ];
 
 const requireDatabase = (req, res) => {

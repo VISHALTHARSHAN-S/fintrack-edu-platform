@@ -22,7 +22,7 @@ const notificationSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['career', 'assessment', 'certificate', 'course', 'mentor', 'general'],
+      enum: ['career', 'assessment', 'certificate', 'course', 'mentor', 'general', 'learningReminder', 'support'],
       default: 'general',
     },
     eventKey: {

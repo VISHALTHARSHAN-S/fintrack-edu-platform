@@ -8,6 +8,8 @@ const categories = new Set([
   'course',
   'mentor',
   'general',
+  'learningReminder',
+  'support',
 ]);
 
 export const createUserNotification = async ({
