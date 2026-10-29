@@ -13,7 +13,6 @@ const StudentPlaceholder = () => {
     if (p.includes('/mentors')) return { name: 'Mentor Connect Booking', breakpoint: 'Breakpoint 3', desc: '1-on-1 mentor slot scheduling, calendar synchronization, and code review requests.' };
     if (p.includes('/practice')) return { name: 'FinTech Practice & Algorithmic Sandbox', breakpoint: 'Breakpoint 4', desc: 'Real-time market data simulator, backtesting engine, and financial risk models.' };
     if (p.includes('/certificates')) return { name: 'Course Completion Certificates', breakpoint: 'Available', desc: 'Downloadable course credentials with public verification.' };
-    if (p.includes('/skills')) return { name: 'AI-Powered Skill Tracker & Matrix', breakpoint: 'Breakpoint 4', desc: 'Personalized AI skill recommendations, strength analysis, and badge progression.' };
     if (p.includes('/career')) return { name: 'Career & Placement Hub', breakpoint: 'Breakpoint 5', desc: 'Recruiter job match engine, resume builder, and placement interview scheduling.' };
     return { name: 'FinTech Sub-Module', breakpoint: 'Future Breakpoint', desc: 'This specialized module will be unlocked in the upcoming development breakpoint.' };
   };

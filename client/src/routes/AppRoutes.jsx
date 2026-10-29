@@ -41,6 +41,14 @@ import LiveClassDetailsPage from '../pages/student/LiveClassDetailsPage';
 import LiveClassRoomPage from '../pages/student/LiveClassRoomPage';
 import StudentPlaceholder from '../pages/student/StudentPlaceholder';
 import StudentCertificatesPage from '../pages/student/StudentCertificatesPage';
+import StudentSkillsPage from '../pages/student/StudentSkillsPage';
+import CareerDashboardPage from '../pages/student/CareerDashboardPage';
+import CareerJobsPage from '../pages/student/CareerJobsPage';
+import CareerJobDetailsPage from '../pages/student/CareerJobDetailsPage';
+import CareerApplicationsPage from '../pages/student/CareerApplicationsPage';
+import CareerInterviewsPage from '../pages/student/CareerInterviewsPage';
+import CareerProfilePage from '../pages/student/CareerProfilePage';
+import NotificationCenterPage from '../pages/student/NotificationCenterPage';
 import CertificateVerificationPage from '../pages/CertificateVerificationPage';
 import StudentMentorConnectPage from '../pages/student/mentor/StudentMentorConnectPage';
 import StudentMentorProfilePage from '../pages/student/mentor/StudentMentorProfilePage';
@@ -71,6 +79,8 @@ import RecruiterCandidateProfilePage from '../pages/recruiter/RecruiterCandidate
 import RecruiterJobsPage from '../pages/recruiter/RecruiterJobsPage';
 import RecruiterJobFormPage from '../pages/recruiter/RecruiterJobFormPage';
 import RecruiterJobDetailsPage from '../pages/recruiter/RecruiterJobDetailsPage';
+import RecruiterApplicationsPage from '../pages/recruiter/RecruiterApplicationsPage';
+import RecruiterInterviewsPage from '../pages/recruiter/RecruiterInterviewsPage';
 
 const AppRoutes = () => {
   return (
@@ -120,10 +130,15 @@ const AppRoutes = () => {
             <Route path="mentor-messages" element={<StudentMentorMessagesPage />} />
             <Route path="mentor-messages/:mentorId" element={<StudentMentorMessagesPage />} />
             <Route path="certificates" element={<StudentCertificatesPage />} />
-            <Route path="skills" element={<StudentPlaceholder />} />
+            <Route path="skills" element={<StudentSkillsPage />} />
             <Route path="leaderboard" element={<StudentPlaceholder />} />
-            <Route path="career" element={<StudentPlaceholder />} />
-            <Route path="notifications" element={<StudentPlaceholder />} />
+            <Route path="career" element={<CareerDashboardPage />} />
+            <Route path="career/jobs" element={<CareerJobsPage />} />
+            <Route path="career/jobs/:jobId" element={<CareerJobDetailsPage />} />
+            <Route path="career/applications" element={<CareerApplicationsPage />} />
+            <Route path="career/interviews" element={<CareerInterviewsPage />} />
+            <Route path="career/profile" element={<CareerProfilePage />} />
+            <Route path="notifications" element={<NotificationCenterPage />} />
             <Route path="settings" element={<StudentPlaceholder />} />
             <Route path="support" element={<StudentPlaceholder />} />
           </Route>
@@ -148,7 +163,7 @@ const AppRoutes = () => {
             <Route path="live-classes" element={<MentorPlaceholder />} />
             <Route path="assessments" element={<MentorPlaceholder />} />
             <Route path="progress" element={<MentorPlaceholder />} />
-            <Route path="notifications" element={<MentorPlaceholder />} />
+            <Route path="notifications" element={<NotificationCenterPage />} />
             <Route path="settings" element={<MentorPlaceholder />} />
             <Route path="support" element={<MentorPlaceholder />} />
           </Route>
@@ -169,10 +184,12 @@ const AppRoutes = () => {
             <Route path="jobs/new" element={<RecruiterJobFormPage />} />
             <Route path="jobs/:jobId/edit" element={<RecruiterJobFormPage />} />
             <Route path="jobs/:jobId" element={<RecruiterJobDetailsPage />} />
+            <Route path="applications" element={<RecruiterApplicationsPage />} />
+            <Route path="interviews" element={<RecruiterInterviewsPage />} />
             <Route path="internships" element={<RecruiterPlaceholder />} />
             <Route path="placement" element={<RecruiterPlaceholder />} />
             <Route path="messages" element={<RecruiterPlaceholder />} />
-            <Route path="notifications" element={<RecruiterPlaceholder />} />
+            <Route path="notifications" element={<NotificationCenterPage />} />
             <Route path="settings" element={<RecruiterPlaceholder />} />
             <Route path="support" element={<RecruiterPlaceholder />} />
           </Route>

@@ -12,6 +12,14 @@ const settingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    notificationPreferences: {
+      career: { type: Boolean, default: true },
+      assessment: { type: Boolean, default: true },
+      certificate: { type: Boolean, default: true },
+      course: { type: Boolean, default: true },
+      mentor: { type: Boolean, default: true },
+      general: { type: Boolean, default: true },
+    },
     securityAlerts: {
       type: Boolean,
       default: true,

@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import NotificationPanel from './NotificationPanel';
+import { loadNotifications } from '../../features/notifications/notificationSlice';
 
 const AppLayout = ({ title, subtitle }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadNotifications());
+  }, [dispatch]);
 
   const getPageTitles = () => {
     const path = location.pathname;
@@ -16,7 +23,7 @@ const AppLayout = ({ title, subtitle }) => {
     if (path.includes('/mentors') || path.includes('/sessions')) return { title: 'Mentor Connect', subtitle: 'Schedule 1-on-1 guidance & code reviews' };
     if (path.includes('/practice')) return { title: 'FinTech Practice Sandbox', subtitle: 'Simulate quantitative trading and financial models' };
     if (path.includes('/certificates')) return { title: 'Verified Micro-Credentials', subtitle: 'Naan Mudhalvan aligned skill certifications' };
-    if (path.includes('/skills') || path.includes('/skill-profiles')) return { title: 'Skill Passport & Analytics', subtitle: 'Verified proof of technical competence' };
+    if (path.includes('/skills') || path.includes('/skill-profiles')) return { title: 'Student Skill Tracker', subtitle: 'Evidence-backed skills and learning milestones' };
     if (path.includes('/progress')) return { title: 'Learning Progress & Insights', subtitle: 'Track your growth and milestone completions' };
     if (path.includes('/leaderboard')) return { title: 'Platform Leaderboard', subtitle: 'Top performers in quantitative finance challenges' };
     if (path.includes('/career') || path.includes('/jobs') || path.includes('/internships')) return { title: 'Career & Recruitment Hub', subtitle: 'Connect with top FinTech employers' };

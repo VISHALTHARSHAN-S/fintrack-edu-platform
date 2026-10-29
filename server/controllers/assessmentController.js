@@ -1,6 +1,7 @@
 import { Assessment } from '../models/Assessment.js';
 import { AssessmentAttempt } from '../models/AssessmentAttempt.js';
 import { SEEDED_ASSESSMENTS, SEEDED_QUESTIONS } from '../seed/practiceSeedData.js';
+import { createUserNotification } from '../services/notificationService.js';
 
 // Get Assessment Center overview & list
 export const getAssessmentCenter = async (req, res) => {
@@ -134,8 +135,28 @@ export const submitAssessmentAttempt = async (req, res) => {
     const studentId = req.user.id;
     const { assessmentId } = req.params;
     const { attemptId, answers, timeTakenSeconds } = req.body;
+    const assessment =
+      SEEDED_ASSESSMENTS.find((item) => item.assessmentId === assessmentId) || SEEDED_ASSESSMENTS[0];
+    if (typeof attemptId !== 'string' || !Array.isArray(answers) || answers.length === 0) {
+      return res.status(400).json({ success: false, message: 'A valid attempt ID and at least one answer are required.' });
+    }
 
-    let assessment = SEEDED_ASSESSMENTS.find((a) => a.assessmentId === assessmentId) || SEEDED_ASSESSMENTS[0];
+    if (req.isDbConnected) {
+      const attempt = await AssessmentAttempt.findOne({ attemptId, studentId, assessmentId });
+      if (!attempt) return res.status(404).json({ success: false, message: 'Assessment attempt not found.' });
+      if (attempt.status === 'completed') {
+        await createUserNotification({
+          userId: studentId,
+          eventKey: `assessment:${attemptId}:completed`,
+          title: 'Assessment result available',
+          message: `Your ${assessmentId} result is ready: ${attempt.percentage}%.`,
+          category: 'assessment',
+          type: attempt.passStatus === 'PASSED' ? 'success' : 'info',
+          link: `/student/assessments/${assessmentId}`,
+        });
+        return res.status(409).json({ success: false, message: 'This assessment attempt has already been submitted.' });
+      }
+    }
 
     let correctCount = 0;
     let incorrectCount = 0;
@@ -173,7 +194,7 @@ export const submitAssessmentAttempt = async (req, res) => {
 
     if (req.isDbConnected) {
       await AssessmentAttempt.findOneAndUpdate(
-        { attemptId },
+        { attemptId, studentId, assessmentId, status: 'in-progress' },
         {
           studentId,
           assessmentId,
@@ -188,8 +209,19 @@ export const submitAssessmentAttempt = async (req, res) => {
           status: 'completed',
           completedAt: new Date(),
         },
-        { upsert: true }
+        { new: true, runValidators: true }
       );
+      if (await AssessmentAttempt.exists({ attemptId, studentId, assessmentId, status: 'completed' })) {
+        await createUserNotification({
+          userId: studentId,
+          eventKey: `assessment:${attemptId}:completed`,
+          title: 'Assessment result available',
+          message: `Your ${assessment.title} result is ready: ${percentage}%.`,
+          category: 'assessment',
+          type: passStatus === 'PASSED' ? 'success' : 'info',
+          link: `/student/assessments/${assessmentId}`,
+        });
+      }
     }
 
     return res.json({

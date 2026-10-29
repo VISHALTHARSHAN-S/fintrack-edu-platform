@@ -20,6 +20,15 @@ const notificationSchema = new mongoose.Schema(
       enum: ['info', 'success', 'warning', 'error'],
       default: 'info',
     },
+    category: {
+      type: String,
+      enum: ['career', 'assessment', 'certificate', 'course', 'mentor', 'general'],
+      default: 'general',
+    },
+    eventKey: {
+      type: String,
+      trim: true,
+    },
     isRead: {
       type: Boolean,
       default: false,
@@ -31,5 +40,11 @@ const notificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+notificationSchema.index(
+  { userId: 1, eventKey: 1 },
+  { unique: true, partialFilterExpression: { eventKey: { $type: 'string' } } }
+);
+notificationSchema.index({ userId: 1, createdAt: -1 });
 
 export const Notification = mongoose.model('Notification', notificationSchema);

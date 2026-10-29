@@ -3,6 +3,7 @@ import { User } from '../models/User.js';
 import { MentorProfile } from '../models/MentorProfile.js';
 import { MentorAvailability } from '../models/MentorAvailability.js';
 import { MentorSession } from '../models/MentorSession.js';
+import { createUserNotification } from '../services/notificationService.js';
 
 const publicUserFields = 'name avatar';
 const sessionTypes = ['1-on-1 Mentorship', 'Code Review', 'Career Guidance', 'Project Consultation'];
@@ -271,6 +272,26 @@ export const bookStudentMentorSession = async (req, res) => {
         notes: studentMessage.trim(),
         agenda: '',
       });
+
+      await Promise.all([
+        createUserNotification({
+          userId: req.user.id,
+          eventKey: `mentor-session:${session.sessionId}:booked:student`,
+          title: 'Mentor session booked',
+          message: `Your ${sessionType.toLowerCase()} with ${context.user.name} is scheduled for ${date} at ${selectedSlot.time}.`,
+          category: 'mentor',
+          type: 'success',
+          link: `/student/mentor-sessions/${session.sessionId}`,
+        }),
+        createUserNotification({
+          userId: context.user._id,
+          eventKey: `mentor-session:${session.sessionId}:booked:mentor`,
+          title: 'New mentor session booking',
+          message: `${req.user.name} booked ${sessionType.toLowerCase()} for ${date} at ${selectedSlot.time}.`,
+          category: 'mentor',
+          link: '/mentor/sessions',
+        }),
+      ]);
 
       return res.status(201).json({
         success: true,

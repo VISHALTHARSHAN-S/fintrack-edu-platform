@@ -33,7 +33,7 @@ Jobs
 Recruiter
 ```
 
-Students can discover courses, work through lessons, track progress, practice FinTech problems, complete assessments, and review performance. Mentors can work with students through student directories, mentorship requests, sessions, availability, profiles, and messages. Recruiters can review dashboard data, manage jobs, discover candidates, and inspect candidate 360-degree profiles. The student career UI and several recruiter workflow UIs remain in progress.
+Students can discover courses, work through lessons, track progress, practice FinTech problems, complete assessments, review performance, and pursue jobs through a data-backed career workflow. Mentors can work with students through student directories, mentorship requests, sessions, availability, profiles, and messages. Recruiters can manage their own jobs and applications, discover applicants, inspect candidate profiles, and schedule interviews.
 
 ## 2. Key Features
 
@@ -52,16 +52,15 @@ Implemented or clearly present:
 - Assessment Center, assessment details, attempts, and results
 - Student certificates with course completion checks, downloadable PDF credentials, QR codes, and public verification
 - Exams and Assignments views and assignment submission
-- Notifications
+- Evidence-based Student Skill Tracker with detailed evidence and Skill Passport records
+- Career dashboard, editable career profile, job discovery and matching, job applications, application tracking, and interview schedules
+- Persistent notifications with unread/read state and per-category in-app preferences
 
-Currently represented by placeholders or not yet implemented as a complete student career module:
+Currently represented by placeholders or not yet implemented:
 
 - Live classes
 - Mentor Connect student workflow
-- Skill Tracker / student Skill Passport
-- Student Career Profile
-- Student Job Discovery
-- Student Applications and application tracking
+- Leaderboard
 
 ### Mentor
 
@@ -93,20 +92,17 @@ Implemented frontend workflows:
 - Candidate discovery
 - Candidate search and filters
 - Candidate 360-degree profile
-- Candidate Skill Passport, performance, readiness, projects, certifications, badges, and application history display
-- Transparent demo skill matching against active job requirements
+- Candidate Skill Passport, real assessment/practice skill scores, projects, certifications, and application history display
+- Data-backed candidate-to-job required-skill matching
 
 Implemented recruiter backend/API surfaces:
 
-- Recruiter dashboard
-- Jobs
-- Candidates
-- Applications and application status updates
-- Interviews
+- Recruiter dashboard aggregated from the recruiter’s own jobs, applications, and interviews
+- Recruiter-owned job CRUD, applications and validated status transitions, candidate profiles scoped to applicants, and interview scheduling/status updates
 - Recruiter profile
 - Recruiter messages
 
-The recruiter applications, interview, messaging, and profile APIs exist, but their complete frontend management screens are not yet implemented. Candidate shortlist, reject, contact, and interview actions are navigation-ready or informational until those modules are completed.
+Recruiter applications and interviews have management screens. Messaging and recruiter profile APIs still use their existing placeholder/in-memory behavior and are outside the completed Career & Jobs workflow.
 
 ## 3. System Architecture
 
@@ -286,9 +282,9 @@ There is no root-level package.json. Install and run the client and server from 
 
 **Objective:** Add recruiter hiring workflows and student career readiness workflows.
 
-**Implemented:** Recruiter dashboard, recruiter job management frontend, mounted recruiter job APIs, candidate discovery frontend, candidate 360-degree profile frontend, mounted candidate APIs, recruiter seed data, and backend API scaffolding for applications, interviews, messages, and recruiter profile.
+**Implemented:** Evidence-based Student Skill Tracker, student career profile and job discovery, skill matching, duplicate-safe applications and tracking, recruiter-owned job and application workflows, applicant-scoped candidate profiles, interview scheduling and tracking, and persisted in-app notifications.
 
-**Status:** IN PROGRESS. Recruiter application, interview, messaging, and profile UIs are not complete. Student career, student Skill Passport, job discovery, applications, and application tracking are not complete and currently include placeholders or seed-only data.
+**Status:** COMPLETED for student career, job application, recruiter application, interview, and notification workflows. The recruiter messaging/profile and other non-career placeholders remain separate existing work.
 
 ## 7. Frontend Routes
 
@@ -325,13 +321,17 @@ There is no root-level package.json. Install and run the client and server from 
 - `/student/mentors`
 - `/student/certificates`
 - `/student/skills`
-- `/student/leaderboard`
 - `/student/career`
+- `/student/career/jobs`
+- `/student/career/jobs/:jobId`
+- `/student/career/profile`
+- `/student/career/applications`
+- `/student/career/interviews`
 - `/student/notifications`
 - `/student/settings`
 - `/student/support`
 
-Several routes in the latter group currently render `StudentPlaceholder`.
+The leaderboard, settings, and support routes currently render `StudentPlaceholder`.
 
 ### Mentor
 
@@ -363,6 +363,8 @@ Several latter routes currently render `MentorPlaceholder`.
 - `/recruiter/jobs/new`
 - `/recruiter/jobs/:jobId`
 - `/recruiter/jobs/:jobId/edit`
+- `/recruiter/applications`
+- `/recruiter/interviews`
 - `/recruiter/students`
 - `/recruiter/skill-profiles`
 - `/recruiter/internships`
@@ -372,7 +374,7 @@ Several latter routes currently render `MentorPlaceholder`.
 - `/recruiter/settings`
 - `/recruiter/support`
 
-The recruiter dashboard, candidates, candidate profile, and jobs routes have implemented frontend screens. Several other recruiter routes currently render `RecruiterPlaceholder`.
+The recruiter dashboard, candidates, candidate profile, jobs, applications, interviews, and notifications routes have implemented frontend screens. Several other recruiter routes still render `RecruiterPlaceholder`.
 
 ## 8. API Endpoints
 
@@ -413,6 +415,13 @@ The backend is mounted from `server/server.js` under `/api`.
 - `POST /api/student/learning/wishlist/toggle`
 - `GET /api/student/learning/progress-stats`
 
+### Student skills — student role
+
+- `GET /api/student/skills` — evidence-based skill summary, recommendations, and Skill Passport
+- `GET /api/student/skills/:skillId` — evidence supporting one tracked skill
+
+Skill scores are the arithmetic mean of the student's completed assessment percentages and practice accuracy mapped to that skill. Levels are Beginner (below 60), Intermediate (60–84), and Advanced (85 or above). Course progress, certificates, and recorded Skill Passport projects are displayed as supporting evidence but do not inflate assessed scores. Skills without a completed assessment or practice result remain unassessed. These endpoints require a connected MongoDB database and only query the authenticated student's records.
+
 ### Student practice — student role
 
 - `GET /api/practice/overview`
@@ -437,8 +446,13 @@ The backend is mounted from `server/server.js` under `/api`.
 
 ### Notifications — authenticated users
 
-- `GET /api/notifications`
-- `PUT /api/notifications/:id/read`
+- `GET /api/notifications` — recipient-scoped list; accepts `?unread=true`
+- `PUT /api/notifications/:id/read` — recipient-scoped mark as read
+- `PUT /api/notifications/read-all` — mark all of the current recipient's notifications as read
+- `GET /api/notifications/preferences`
+- `PUT /api/notifications/preferences` — update in-app categories: career, assessment, certificate, course, mentor, and general
+
+Notifications are stored with unique recipient/event keys to deduplicate retried events. Application, interview, assessment, certificate, lesson-completion, mentor-session, and matching-job events use the recipient's notification preferences.
 
 ### Mentor — mentor role
 
@@ -461,19 +475,34 @@ The backend is mounted from `server/server.js` under `/api`.
 
 ### Recruiter — recruiter role
 
-- `GET /api/recruiter/dashboard`
 - `GET /api/recruiter/jobs`
 - `POST /api/recruiter/jobs`
 - `GET /api/recruiter/jobs/:jobId`
 - `PUT /api/recruiter/jobs/:jobId`
-- `GET /api/recruiter/candidates`
-- `GET /api/recruiter/candidates/:candidateId`
 - `GET /api/recruiter/applications`
 - `PUT /api/recruiter/applications/:applicationId/status`
+- `GET /api/recruiter/candidates`
+- `GET /api/recruiter/candidates/:candidateId`
 - `GET /api/recruiter/interviews`
 - `POST /api/recruiter/interviews`
 - `GET /api/recruiter/interviews/:interviewId`
 - `PUT /api/recruiter/interviews/:interviewId`
+
+Recruiter job, application, candidate, interview, and dashboard data require MongoDB and are restricted to the authenticated recruiter. Candidate records are discoverable only when they applied to one of that recruiter's jobs. A missing database returns a service-unavailable error rather than displaying seeded demo candidates, jobs, or results. Existing job records without a recruiter owner must be explicitly reassigned by an administrator before they become visible; the application does not guess ownership.
+
+### Student Career — student role
+
+- `GET /api/student/career/dashboard`
+- `GET /api/student/career/profile`
+- `PUT /api/student/career/profile`
+- `GET /api/student/career/jobs` — filters include search, company, location, job type, skill, and `eligible=true`
+- `GET /api/student/career/jobs/:jobId`
+- `POST /api/student/career/jobs/:jobId/apply`
+- `GET /api/student/career/applications`
+- `GET /api/student/career/interviews`
+
+Job match percentages are the proportion of required skills matching actual profile, assessed Skill Tracker, Passport, project, or certificate evidence; missing skills are returned separately. Skill scores only use completed practice and assessment results. Application creation requires a saved resume URL, rejects expired/closed jobs and duplicate applications, and uses a unique `(jobId, candidateId)` index. Recruiter application status changes follow the existing pipeline and notify the student.
+
 - `GET /api/recruiter/profile`
 - `PUT /api/recruiter/profile`
 - `GET /api/recruiter/messages`
@@ -481,7 +510,7 @@ The backend is mounted from `server/server.js` under `/api`.
 - `GET /api/recruiter/messages/thread/:candidateId`
 - `POST /api/recruiter/messages/send`
 
-The recruiter APIs currently use seeded in-memory data for these workflows. The jobs and candidate frontend services call the mounted recruiter API paths and provide demo fallback data when the API is unavailable.
+Recruiter profile and messaging remain existing placeholder/in-memory workflows. Job, application, candidate, interview, and dashboard paths listed above use MongoDB-backed records and do not fall back to demo values.
 
 ## 9. Database Models
 
@@ -501,19 +530,20 @@ The server contains the following Mongoose models:
 - `PracticeSession` — student practice session data
 - `Assignment` — assignment definitions
 - `AssignmentSubmission` — student assignment submissions
-- `Notification` — user notifications and read state
+- `Notification` — persisted recipient-scoped notifications, read state, category, and idempotent event key
+- `CandidateProfile` — student career profile and resume details
+- `Job` — recruiter-owned job postings
+- `JobApplication` — student application, match evidence, and recruiter workflow status
+- `Interview` — recruiter-owned interview schedule linked to an application
+- `Settings.notificationPreferences` — per-user in-app notification categories
 - `MentorAvailability` — mentor availability schedules
 - `MentorSession` — mentor and student session bookings
 - `MentorshipRequest` — mentorship connection requests
 - `MentorMessage` — mentor messaging records
-- `Job` — recruiter job postings and status/count fields
-- `JobApplication` — candidate applications and pipeline status
-- `CandidateProfile` — candidate education, career preferences, skills, and readiness
 - `SkillPassport` — verified skills, certifications, projects, and badges
-- `Interview` — recruiter interview scheduling and status
 - `RecruiterMessage` — recruiter-candidate message records
 
-The current recruiter controllers also expose seeded demo records from `server/seed/recruiterSeedData.js`; not every current UI/API workflow persists records through its Mongoose model yet.
+The recruiter profile and messaging placeholder workflows still rely on their existing seed/in-memory data. The Career & Jobs workflow uses its Mongoose models.
 
 ## 10. Technology Stack
 

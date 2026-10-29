@@ -2,6 +2,7 @@ import { Enrollment } from '../models/Enrollment.js';
 import { Wishlist } from '../models/Wishlist.js';
 import { Course } from '../models/Course.js';
 import { SEEDED_COURSES } from '../seed/coursesSeedData.js';
+import { createUserNotification } from '../services/notificationService.js';
 
 export const getEnrolledCourses = async (req, res) => {
   try {
@@ -93,6 +94,12 @@ export const markLessonComplete = async (req, res) => {
     const { courseId, lessonId } = req.params;
 
     if (req.isDbConnected) {
+      const course = await Course.findById(courseId);
+      if (!course) return res.status(404).json({ success: false, message: 'Course not found.' });
+      const lessonExists = course.modules.some((module) =>
+        module.lessons.some((lesson) => lesson.lessonId === lessonId)
+      );
+      if (!lessonExists) return res.status(404).json({ success: false, message: 'Lesson not found.' });
       let enrollment = await Enrollment.findOne({ studentId, courseId });
       if (!enrollment) {
         enrollment = await Enrollment.create({
@@ -100,6 +107,9 @@ export const markLessonComplete = async (req, res) => {
           courseId,
           completedLessons: [lessonId],
           lastAccessedLessonId: lessonId,
+          progressPercentage: Math.round(
+            (1 / course.modules.reduce((total, module) => total + module.lessons.length, 0)) * 100
+          ),
         });
       } else {
         if (!enrollment.completedLessons.includes(lessonId)) {
@@ -109,17 +119,25 @@ export const markLessonComplete = async (req, res) => {
         enrollment.lastAccessedAt = new Date();
 
         // Calculate progress percentage
-        const course = await Course.findById(courseId);
-        if (course) {
-          const totalLessons = course.modules.reduce((acc, m) => acc + m.lessons.length, 0);
-          enrollment.progressPercentage = totalLessons > 0 ? Math.round((enrollment.completedLessons.length / totalLessons) * 100) : 0;
-          if (enrollment.progressPercentage >= 100) {
-            enrollment.status = 'completed';
-          }
+        const totalLessons = course.modules.reduce((acc, m) => acc + m.lessons.length, 0);
+        enrollment.progressPercentage = totalLessons > 0
+          ? Math.round((enrollment.completedLessons.length / totalLessons) * 100)
+          : 0;
+        if (enrollment.progressPercentage >= 100) {
+          enrollment.status = 'completed';
         }
         await enrollment.save();
       }
 
+      await createUserNotification({
+        userId: studentId,
+        eventKey: `course:${courseId}:lesson:${lessonId}:completed`,
+        title: 'Course progress updated',
+        message: `You completed "${course.title}" lesson "${course.modules.flatMap((module) => module.lessons).find((lesson) => lesson.lessonId === lessonId)?.title}".`,
+        category: 'course',
+        type: 'success',
+        link: `/student/learn/${courseId}/${lessonId}`,
+      });
       return res.json({ success: true, data: enrollment });
     }
 

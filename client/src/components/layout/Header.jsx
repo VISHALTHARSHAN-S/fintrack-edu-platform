@@ -44,7 +44,9 @@ const Header = ({ title = 'Dashboard', subtitle = 'Welcome to FinTrack Edu Platf
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-[#C9897F] ring-2 ring-white" />
+              <span className="absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#C9897F] px-1 text-[10px] font-bold text-white ring-2 ring-white">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
             )}
           </button>
         </div>

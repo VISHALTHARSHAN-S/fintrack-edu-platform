@@ -9,10 +9,12 @@ const jobApplicationSchema = new mongoose.Schema(
     candidateId: { type: String, required: true },
     candidateName: { type: String, required: true },
     candidateEmail: { type: String, required: true },
-    resumeUrl: { type: String, default: 'fintrack_verified_resume.pdf' },
+    resumeUrl: { type: String, default: '' },
     coverMessage: { type: String, default: '' },
-    skillMatchPercentage: { type: Number, default: 85 },
-    assessmentScore: { type: String, default: '92%' },
+    matchedSkills: [{ type: String }],
+    missingSkills: [{ type: String }],
+    skillMatchPercentage: { type: Number, min: 0, max: 100, default: null },
+    assessmentScore: { type: String, default: '' },
     status: {
       type: String,
       enum: ['APPLIED', 'SCREENING', 'SHORTLISTED', 'INTERVIEW', 'SELECTED', 'REJECTED'],
@@ -22,5 +24,7 @@ const jobApplicationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+jobApplicationSchema.index({ jobId: 1, candidateId: 1 }, { unique: true });
 
 export const JobApplication = mongoose.model('JobApplication', jobApplicationSchema);

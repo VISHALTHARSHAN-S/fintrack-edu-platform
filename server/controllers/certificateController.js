@@ -8,6 +8,7 @@ import { Course } from '../models/Course.js';
 import { Enrollment } from '../models/Enrollment.js';
 import { User } from '../models/User.js';
 import { SEEDED_ASSESSMENTS } from '../seed/practiceSeedData.js';
+import { createUserNotification } from '../services/notificationService.js';
 
 const ISSUING_ORGANIZATION = 'FinTrack Edu';
 
@@ -150,6 +151,15 @@ export const issueCertificate = async (req, res) => {
     }).populate('courseId', 'title category');
 
     if (existingCertificate) {
+      await createUserNotification({
+        userId: req.user.id,
+        eventKey: `certificate:${existingCertificate._id}:issued`,
+        title: 'Certificate earned',
+        message: `Your certificate for ${existingCertificate.metadata.courseTitle} is ready.`,
+        category: 'certificate',
+        type: 'success',
+        link: '/student/certificates',
+      });
       return res.json({ success: true, data: existingCertificate, alreadyIssued: true });
     }
 
@@ -195,6 +205,15 @@ export const issueCertificate = async (req, res) => {
     });
 
     await certificate.populate('courseId', 'title category');
+    await createUserNotification({
+      userId: req.user.id,
+      eventKey: `certificate:${certificate._id}:issued`,
+      title: 'Certificate earned',
+      message: `Your certificate for ${course.title} is ready.`,
+      category: 'certificate',
+      type: 'success',
+      link: '/student/certificates',
+    });
     return res.status(201).json({ success: true, data: certificate });
   } catch (error) {
     if (error?.code === 11000) {

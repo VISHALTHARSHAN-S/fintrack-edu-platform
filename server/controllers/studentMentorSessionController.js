@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { MentorSession } from '../models/MentorSession.js';
 import { getBookingContext, slotsWithinWorkingHours } from './studentMentorController.js';
+import { createUserNotification } from '../services/notificationService.js';
 
 const validStatuses = ['Upcoming', 'Completed', 'Cancelled'];
 
@@ -72,6 +73,15 @@ export const cancelStudentMentorSession = async (req, res) => {
       { new: true, runValidators: true }
     ).populate('mentorId', 'name avatar').lean();
     if (!session) return res.status(404).json({ success: false, message: 'Only an upcoming session owned by you can be cancelled.' });
+    await createUserNotification({
+      userId: session.mentorId?._id || session.mentorId,
+      eventKey: `mentor-session:${session.sessionId}:cancelled`,
+      title: 'Mentor session cancelled',
+      message: `${session.studentName} cancelled the session scheduled for ${new Date(session.date).toLocaleDateString()}.`,
+      category: 'mentor',
+      type: 'warning',
+      link: '/mentor/sessions',
+    });
     return res.json({ success: true, message: 'Mentor session cancelled successfully.', data: mapSession(session) });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Unable to cancel mentor session.' });
@@ -109,6 +119,14 @@ export const rescheduleStudentMentorSession = async (req, res) => {
         { new: true, runValidators: true }
       ).populate('mentorId', 'name avatar').lean();
       if (!updatedSession) return res.status(404).json({ success: false, message: 'Mentor session not found.' });
+      await createUserNotification({
+        userId: updatedSession.mentorId?._id || updatedSession.mentorId,
+        eventKey: `mentor-session:${updatedSession.sessionId}:rescheduled:${context.dateRange.start.toISOString()}:${selectedSlot.time}`,
+        title: 'Mentor session rescheduled',
+        message: `${updatedSession.studentName} rescheduled the session to ${date} at ${selectedSlot.time}.`,
+        category: 'mentor',
+        link: '/mentor/sessions',
+      });
       return res.json({ success: true, message: 'Mentor session rescheduled successfully.', data: mapSession(updatedSession) });
     } catch (error) {
       if (error?.code === 11000) return res.status(409).json({ success: false, message: 'This time slot is no longer available.' });

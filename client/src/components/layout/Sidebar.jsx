@@ -74,6 +74,8 @@ const Sidebar = ({ isOpen, onClose }) => {
       { name: 'Skill Profiles', path: '/recruiter/skill-profiles', icon: ShieldCheck },
       { name: 'Candidates', path: '/recruiter/candidates', icon: Users },
       { name: 'Jobs', path: '/recruiter/jobs', icon: Briefcase },
+      { name: 'Applications', path: '/recruiter/applications', icon: FileCheck },
+      { name: 'Interviews', path: '/recruiter/interviews', icon: Calendar },
       { name: 'Internships', path: '/recruiter/internships', icon: Building2 },
       { name: 'Placement', path: '/recruiter/placement', icon: Award },
       { name: 'Messages', path: '/recruiter/messages', icon: MessageSquare },

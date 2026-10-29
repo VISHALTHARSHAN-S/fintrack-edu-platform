@@ -25,10 +25,16 @@ const RecruiterJobsPage = () => {
 
   const loadJobs = async () => {
     setIsLoading(true);
-    const result = await fetchRecruiterJobs();
-    setJobs(result.jobs);
-    setError(result.usingFallback ? 'Jobs API is unavailable. Showing demo data; changes require a live API.' : '');
-    setIsLoading(false);
+    try {
+      const result = await fetchRecruiterJobs();
+      setJobs(result.jobs);
+      setError('');
+    } catch (requestError) {
+      setJobs([]);
+      setError(requestError.response?.data?.message || 'Unable to load jobs.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => { loadJobs(); }, []);

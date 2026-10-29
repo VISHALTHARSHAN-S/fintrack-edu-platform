@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const jobSchema = new mongoose.Schema(
   {
     jobId: { type: String, required: true, unique: true },
+    recruiterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     title: { type: String, required: true },
     company: { type: String, required: true },
     companyLogo: { type: String, default: '' },
@@ -18,7 +19,7 @@ const jobSchema = new mongoose.Schema(
       default: 'Full-time',
     },
     experienceLevel: { type: String, default: 'Entry Level (0-2 yrs)' },
-    salaryRange: { type: String, required: true },
+    salaryRange: { type: String, default: '' },
     requiredSkills: [{ type: String }],
     preferredSkills: [{ type: String }],
     description: { type: String, required: true },
